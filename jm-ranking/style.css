@@ -1,0 +1,154 @@
+:root{
+    --modal-bg-color: #001c41;
+    --modal-font-color: #dddddd;
+    --button-ok-color: #0d6b2d;
+    --button-light-color: #555555;
+    --button-submit-color: #175d9e;
+}
+body{
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    background-color: #202020;
+    color: #ced4da;
+}
+.center-container{
+    border: 1px solid #888888;
+    width: 80%;
+    margin: 0px auto;
+    padding: 20px;
+}
+
+.btn{
+    display: inline-block;
+    background-color: #585858;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    opacity: 0.9;
+    font-size: 0.9rem;
+    font-weight: 300;
+    border-radius: 1rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,
+                border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    min-width: 100px;
+    min-height: 20px;
+    margin: 5px;
+}
+.btn:hover{
+    opacity: 1;
+}
+.btn-sm{
+    min-width: 20px;
+}
+.btn-primary{
+    background-color: var(--button-ok-color);
+    color: white;
+}
+.btn-light{
+    background-color: var(--button-light-color);
+    color: white;
+}
+.btn-submit{
+    background-color: var(--button-submit-color);
+    color: white;
+}
+.btn-full{
+    width: 100%;
+}
+/* The Modal (background) */
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(33, 33, 33,0.9);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.1);
+    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--modal-bg-color);
+    color: var(--modal-font-color);
+    padding: 1rem 1.5rem;
+    width: 24rem;
+    border-radius: 0.5rem;
+}
+.firma{
+    display: block;
+    margin-right: 5pt;
+    text-align: end;
+}
+
+.close-button {
+    float: right;
+    width: 1rem;
+    line-height: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 30px;
+    background-color: var(--modal-bg-color);
+    width: 24px;
+    height: 24px;
+}
+
+.close-button:hover {
+    background-color: #003985;
+}
+
+.show-modal {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1.0);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+}
+
+.form-control-group{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin: 10px auto;
+}
+.form-control-group input, .form-control-group select{
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    border-radius: 0.25rem;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.form-control-group input{
+    width: 200px;
+}
+.form-control-group select{
+    width: 225px;
+}
+/*Canciones*/
+.container{
+    max-width: 400px;
+    margin: 0px auto;
+}
+.container ul{
+    list-style-type: none;
+}
+.container ul li{
+    display: block;
+    border: 1px #000 dashed;
+    margin: 10px auto;
+    padding: 10px;
+    opacity: .8;
+    color:white;
+}

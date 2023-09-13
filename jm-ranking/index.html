@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OK</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="nav-bar">
+        <ul>
+            <li class="userName"><span id="usuarioRegistrado">-</span></li>
+        </ul>
+    </div>
+    <div class="center-container">
+        <h2>Encuesta</h2>
+        <div class="container" id="divCanciones">
+        </div>
+        <!-- <a href="javascript:void(0)" class="btn btn-primary" id="btnRegistro">Hola, ingresa tu información aquí</a> -->
+    </div>
+
+    <div class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Bienvenido(a)</h2>
+        <p>Ésta página web fue creada solo por diversión, para saber qué canciones 
+            les gusta más a los fans de José Madero.</p>
+        <p>Para ello, agradecería que puedas ingresar algunos datos básicos como ciudad de origen,
+            edad y sexo para poder realizar estadísticas al respecto.</p>
+        <p>Gracias por apoyar esta iniciativa.</p>
+        <small class="firma">JNV</small>
+        <hr>
+        <h3>Por favor ingresa tu información:</h3>
+        <form id="formUsuario">
+            <div class="form-control-group">
+                <label for="txtNombre">Nombre:</label>
+                <input type="text" id="txtNombre" name="txtNombre" placeholder="Nombre">
+            </div>
+            <div class="form-control-group">
+                <label for="selCiudad">Ciudad:</label>
+                <select name="selCiudad" id="selCiudad" class="select-control">
+                    <option value="">- SELECCIONE -</option>
+                    <option value="1">LIMA</option>
+                    <option value="2">CALLAO</option>
+                    <option value="3">TRUJILLO</option>
+                </select>
+            </div>
+            <div class="form-control-group">
+                <label for="txtEdad">Edad:</label>
+                <input type="number" id="txtEdad" name="txtEdad">
+            </div>
+            <div class="form-control-group">
+                <label for="selSexo">Sexo:</label>
+                <select name="selSexo" id="selSexo" class="select-control">
+                    <option value="">- SELECCIONE -</option>
+                    <option value="1">MASCULINO</option>
+                    <option value="2">FEMENINO</option>
+                    <option value="3">OTRO</option>
+                </select>
+            </div>
+            <div class="form-control-group">
+                <button type="submit" class="btn btn-primary btn-full">Registrar</button>
+            </div>
+        </form>
+      </div>
+    </div>
+    <script src="style.js"></script>
+</body>
+</html>
