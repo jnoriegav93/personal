@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa v1</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="map-container">
+      <div id="map"></div>
+
+      <div id="floating-modal">
+        <div class="modal-header">
+          <h2 id="toolTitle">Herramienta Seleccionada</h2>
+        </div>
+        <div class="modal-content">
+          <p id="featureInfo">Información de la Geometría:</p>
+        </div>
+        <div class="modal-footer">
+          <button id="saveBtn">Guardar</button>
+        </div>
+      </div>
+      <div id="menu">
+        <div id="menu-icon">=</div>
+        <div id="menu-panel">
+          <ul>
+            <li><input type="checkbox" name="" id="">1</li>
+            <li><input type="checkbox" name="" id="">2</li>
+            <li><input type="checkbox" name="" id="">3</li>
+            <li><input type="checkbox" name="" id="">4</li>
+            <li><input type="checkbox" name="" id="">5</li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="floating-bar">
+        <button id="panBtn">Cursor</button>
+        <button id="markerBtn">Marcador</button>
+        <button id="lineBtn">Línea</button>
+        <button id="polygonBtn">Polígono</button>
+        <!-- <button id="darkModeBtn">Modo Oscuro</button> -->
+        <!-- Div para la búsqueda -->
+        <!-- Div para la búsqueda -->
+        <!-- <div id="searchDiv">
+          <input type="text" id="searchInput" placeholder="Buscar dirección">
+          <button id="searchBtn">Buscar</button>
+          <ul id="autocomplete-list"></ul>
+        </div> -->
+
+      </div>
+    </div>
+  </div>
+  <script src="gmap.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFnHwjHd8UWHKkII0Vlkx9KjTH7bsprQ8&libraries=drawing&callback=initMap"></script>
+
+</body>
+
+</html>
