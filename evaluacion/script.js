@@ -46,7 +46,7 @@ function mostrarPregunta(indice) {
     ? `<button class="btn btn-primary" onclick="mostrarPregunta(${indice + 1})">Siguiente</button>`
     : `<button class="btn btn-success" onclick="finalizar()">Finalizar</button>`;
 
-  html += `</div><div class="mt-3 mx-auto text-center" style="max-width:650px">${numerosDePreguntas()}</div>`;
+  html += `</div><div class="my-3 mx-auto text-center" style="max-width:650px">${numerosDePreguntas()}</div>`;
 
   document.getElementById('pregunta-contenedor').style.display = 'block';
   document.getElementById('pregunta-contenedor').innerHTML = html;
