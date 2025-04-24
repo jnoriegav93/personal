@@ -21,7 +21,7 @@ function mezclarArray(array) {
 function mostrarPregunta(indice) {
   actual = indice;
   const pregunta = preguntas[indice];
-  let html = `<h3 class="my-2" style="min-height:100px">${indice + 1}. ${pregunta.texto}</h3><ul class="list-group" style="min-height:270px">`;
+  let html = `<h3 class="mt-4 my-2" style="min-height:100px">${indice + 1}. ${pregunta.texto}</h3><ul class="list-group" style="min-height:270px">`;
 
   pregunta.opciones.forEach((op, i) => {
     const checked = respuestas[indice] === op ? 'checked' : '';
