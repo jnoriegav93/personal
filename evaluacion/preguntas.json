@@ -1,0 +1,442 @@
+[
+    {
+      "preguntaID": 1,
+      "texto": "¿Qué efecto tiene aumentar la automatización en la práctica de mesa de servicios?",
+      "opciones": [
+        "Mayor capacidad para enfocarse en la experiencia del cliente cuando el contacto personal sea necesario",
+        "Menor registro y resolución de incidentes en la modalidad de autoservicio",
+        "Mayor capacidad para enfocarse en reparar la tecnología en lugar de brindar asistencia a las personas",
+        "Eliminación de la necesidad de escalar incidentes a equipos de soporte"
+      ],
+      "respuesta": "Mayor capacidad para enfocarse en la experiencia del cliente cuando el contacto personal sea necesario"
+    },
+    {
+      "preguntaID": 2,
+      "texto": "¿Qué término describe la funcionalidad ofrecida por un servicio?",
+      "opciones": [
+        "Costo",
+        "Utilidad",
+        "Garantía",
+        "Riesgo"
+      ],
+      "respuesta": "Utilidad"
+    },
+    {
+      "preguntaID": 3,
+      "texto": "¿Cuál es el propósito de la práctica de monitoreo y gestión de eventos?",
+      "opciones": [
+        "Asegurar que información precisa y confiable sobre la configuración de servicios esté disponible cuando y donde se requiera",
+        "Observar de manera sistemática los servicios y componentes de estos, así como en registrar e informar de determinados cambios de estado",
+        "Proteger la información que la organización necesita para llevar a cabo sus actividades empresariales",
+        "Minimizar el impacto negativo de incidentes mediante la restauración de la operación normal del servicio lo más rápidamente posible"
+      ],
+      "respuesta": "Observar de manera sistemática los servicios y componentes de estos, así como en registrar e informar de determinados cambios de estado"
+    },
+    {
+      "preguntaID": 4,
+      "texto": "¿En qué se deberían basar todas las decisiones de mejora continua?",
+      "opciones": [
+        "Información sobre cómo se miden los servicios",
+        "Datos analizados de manera precisa y cuidadosa",
+        "Un cuadro de mando integral (balanced scorecard) actualizado",
+        "Una evaluación de madurez reciente"
+      ],
+      "respuesta": "Datos analizados de manera precisa y cuidadosa"
+    },
+    {
+      "preguntaID": 5,
+      "texto": "¿De qué manera las actividades de la cadena de valor transforman entradas en salidas?",
+      "opciones": [
+        "Mediante la definición de la demanda de servicios",
+        "A través de una combinación de prácticas",
+        "Mediante un solo equipo funcional",
+        "Al implementar la automatización de procesos"
+      ],
+      "respuesta": "A través de una combinación de prácticas"
+    },
+    {
+      "preguntaID": 6,
+      "texto": "¿De qué manera el involucramiento del cliente contribuye a la práctica de gestión de niveles de servicio?",
+      "opciones": [
+        "Registra información en la que se pueden basar las métricas",
+        "Asegura que la organización alcance los niveles de servicio definidos",
+        "Define los flujos de trabajo de las solicitudes de servicio",
+        "Sirve para fundamentar las conversaciones sobre los avances"
+      ],
+      "respuesta": "Sirve para fundamentar las conversaciones sobre los avances"
+    },
+    {
+      "preguntaID": 7,
+      "texto": "¿Cuál es el punto de partida para la optimización?",
+      "opciones": [
+        "Asegurar el involucramiento de las partes interesadas",
+        "Comprender la visión y los objetivos de la organización",
+        "Determinar dónde se conseguirá el impacto más positivo",
+        "Estandarizar las prácticas y los servicios"
+      ],
+      "respuesta": "Comprender la visión y los objetivos de la organización"
+    },
+    {
+      "preguntaID": 8,
+      "texto": "Identifique las palabras que faltan en el siguiente enunciado: El propósito de [?] es asegurar que la organización y las partes interesadas creen valor de forma conjunta y continua, según los objetivos de la organización.",
+      "opciones": [
+        "el principio rector 'enfocarse en el valor'",
+        "las cuatro dimensiones de la gestión de servicios",
+        "el sistema de valor del servicio",
+        "la práctica de gestión de solicitudes de servicio"
+      ],
+      "respuesta": "el sistema de valor del servicio"
+    },
+    {
+      "preguntaID": 9,
+      "texto": "¿Qué práctica proporciona un respaldo para gestionar la retroalimentación, las felicitaciones y las quejas de los usuarios?",
+      "opciones": [
+        "Control de cambios",
+        "Gestión de solicitudes de servicio",
+        "Gestión de problemas",
+        "Gestión de incidentes"
+      ],
+      "respuesta": "Gestión de solicitudes de servicio"
+    },
+    {
+      "preguntaID": 10,
+      "texto": "¿Cuál de las actividades que realizan el proveedor de servicios y el consumidor del servicio asegura la creación conjunta de valor?",
+      "opciones": [
+        "Provisión de servicios",
+        "Consumo de servicios",
+        "Oferta de servicios",
+        "Gestión de relaciones de servicio"
+      ],
+      "respuesta": "Gestión de relaciones de servicio"
+    },
+    {
+      "preguntaID": 11,
+      "texto": "¿Qué práctica puede implicar poner en marcha la recuperación ante desastres",
+      "opciones": [
+        "Gestión de incidentes",
+        "Gestión de solicitudes de servicio",
+        "Gestión de niveles de servicio",
+        "Gestión de activos de TI"
+      ],
+      "respuesta": "Gestión de activos de TI"
+    },
+    {
+      "preguntaID": 12,
+      "texto": "¿Qué tipo de cambio tiene MÁS probabilidades de gestionarse mediante la práctica de gestión de solicitudes de servicio?",
+      "opciones": [
+        "Un cambio normal",
+        "Un cambio de emergencia",
+        "Un cambio estándar",
+        "Un cambio de aplicación"
+      ],
+      "respuesta": "Un cambio estándar"
+    },
+    {
+      "preguntaID": 13,
+      "texto": "¿Qué principio rector hace énfasis en la necesidad de comprender el flujo de trabajo en progreso e identificar cuellos de botella y pérdidas?",
+      "opciones": [
+        "Enfocarse en el valor",
+        "Colaborar y promover la visibilidad",
+        "Pensar y trabajar holísticamente",
+        "Mantenerlo sencillo y práctico"
+      ],
+      "respuesta": "Colaborar y promover la visibilidad"
+    },
+    {
+      "preguntaID": 14,
+      "texto": "¿Qué es un medio para posibilitar la creación conjunta de valor al facilitar los resultados que el cliente desea obtener?",
+      "opciones": [
+        "Un servicio",
+        "Una salida",
+        "Una práctica",
+        "La mejora continua"
+      ],
+      "respuesta": "Un servicio"
+    },
+    {
+      "preguntaID": 15,
+      "texto": "¿Qué afirmación acerca de la autorización de cambios es CORRECTA?",
+      "opciones": [
+        "Se debería asignar una autoridad de cambios para cada tipo de cambio y modelo de cambios",
+        "El medio de autorización más eficaz consiste en centralizar la autorización de cambios en una sola persona",
+        "La autorización de cambios normales debería ser ágil para asegurar que se puedan implementar rápidamente",
+        "Los cambios estándar son de alto riesgo y la autoridad de cambios de más alto nivel debería autorizarlos"
+      ],
+      "respuesta": "Se debería asignar una autoridad de cambios para cada tipo de cambio y modelo de cambios"
+    },
+    {
+      "preguntaID": 16,
+      "texto": "¿Qué dimensión de la gestión de servicios tiene en cuenta el gobierno, la gestión y la comunicación?",
+      "opciones": [
+        "Organizaciones y personas",
+        "Información y tecnología",
+        "Socios y proveedores",
+        "Procesos y flujos de valor"
+      ],
+      "respuesta": "Organizaciones y personas"
+    },
+    {
+      "preguntaID": 17,
+      "texto": "Identifique las palabras que faltan en el siguiente enunciado: <br>Un error conocido es un problema que se ha [?] y no se ha resuelto.",
+      "opciones": [
+        "registrado",
+        "analizado",
+        "escalado",
+        "cerrado"
+      ],
+      "respuesta": "registrado"
+    },
+    {
+      "preguntaID": 18,
+      "texto": "¿Qué afirmación acerca de los errores conocidos y los problemas es CORRECTA?",
+      "opciones": [
+        "“Error conocido” es el estado asignado a un problema luego de que se ha analizado",
+        "Un error conocido es la causa de uno o más problemas",
+        "Los errores conocidos causan vulnerabilidades, los problemas causan incidentes",
+        "El personal técnico gestiona los errores conocidos, y el personal de gestión de servicios gestiona los problemas"
+      ],
+      "respuesta": "“Error conocido” es el estado asignado a un problema luego de que se ha analizado"
+    },
+    {
+      "preguntaID": 19,
+      "texto": "¿De qué depende la práctica de gestión de solicitudes de servicio para alcanzar la máxima eficiencia?",
+      "opciones": [
+        "Felicitaciones y quejas",
+        "Herramientas de autoservicio",
+        "Procesos y procedimientos",
+        "Gestión de incidentes"
+      ],
+      "respuesta": "Herramientas de autoservicio"
+    },
+    {
+      "preguntaID": 20,
+      "texto": "¿Qué afirmación acerca de la práctica de mesa de servicios es CORRECTA?",
+      "opciones": [
+        "Proporciona un vínculo con las partes interesadas a nivel estratégico y táctico",
+        "Ejecuta la evaluación y autorización de los cambios",
+        "Investiga la causa de los incidentes",
+        "Requiere una comprensión práctica de los procesos del negocio"
+      ],
+      "respuesta": "Requiere una comprensión práctica de los procesos del negocio"
+    },
+    {
+      "preguntaID": 21,
+      "texto": "¿Qué práctica asegura la disponibilidad de información precisa y confiable sobre los elementos de configuración y las relaciones entre ellos?",
+      "opciones": [
+        "Gestión de la configuración de servicios",
+        "Mesa de servicios",
+        "Gestión de activos de TI",
+        "Monitoreo y gestión de eventos"
+      ],
+      "respuesta": "Gestión de la configuración de servicios"
+    },
+    {
+      "preguntaID": 22,
+      "texto": "¿Qué práctica tiene un propósito que incluye restaurar la operación normal del servicio lo más rápidamente posible?",
+      "opciones": [
+        "Gestión de proveedores",
+        "Gestión de implementación",
+        "Gestión de problemas",
+        "Gestión de incidentes"
+      ],
+      "respuesta": "Gestión de incidentes"
+    },
+    {
+      "preguntaID": 23,
+      "texto": "Identifique las palabras que faltan en el siguiente enunciado: <br>Un cliente es una persona que define los requerimientos de un servicio y que es responsable de [?] del consumo de servicios.",
+      "opciones": [
+        "las salidas",
+        "los resultados",
+        "los costos",
+        "los riesgos"
+      ],
+      "respuesta": "los resultados"
+    },
+    {
+      "preguntaID": 24,
+      "texto": "¿Qué principio rector describe la importancia de iniciar una acción, en lugar de invertir mucho tiempo analizando diferentes opciones?",
+      "opciones": [
+        "Optimizar y analizar",
+        "Comenzar donde esté",
+        "Enfocarse en el valor",
+        "Progresar iterativamente con retroalimentación"
+      ],
+      "respuesta": "Progresar iterativamente con retroalimentación"
+    },
+    {
+      "preguntaID": 25,
+      "texto": "¿Qué debería hacerse con un problema?",
+      "opciones": [
+        "Un diagnóstico para identificar posibles soluciones",
+        "Definir su prioridad con base en su impacto potencial y probabilidad",
+        "Resolverlo para que se pueda cerrar",
+        "Implementar una solución temporal para reducir su impacto"
+      ],
+      "respuesta": "Definir su prioridad con base en su impacto potencial y probabilidad"
+    },
+    {
+      "preguntaID": 26,
+      "texto": "¿Qué debería hacer una organización para incluir a los proveedores externos en la mejora continua de los servicios?",
+      "opciones": [
+        "Asegurar que los proveedores proporcionen información específica de su enfoque de mejora de los servicios en los contratos",
+        "Requerir evidencias al proveedor sobre su utilización de los método de desarrollo Agile",
+        "Requerir evidencias al proveedor sobre su implementación de las mejoras a través de prácticas de gestión de proyectos",
+        "Asegurar que todas las actividades de gestión de problemas del proveedor deriven en mejoras"
+      ],
+      "respuesta": "Asegurar que los proveedores proporcionen información específica de su enfoque de mejora de los servicios en los contratos"
+    },
+    {
+      "preguntaID": 27,
+      "texto": "¿Qué consideraciones influyen en la estrategia de una organización con respecto a los proveedores?",
+      "opciones": [
+        "Contratos y acuerdos",
+        "Tipo de cooperación con los proveedores",
+        "Cultura corporativa de la organización",
+        "Nivel de formalidad"
+      ],
+      "respuesta": "Tipo de cooperación con los proveedores"
+    },
+    {
+      "preguntaID": 28,
+      "texto": "¿Qué es un problema?",
+      "opciones": [
+        "Una adición o modificación que podría tener un efecto en los servicios",
+        "Cualquier cambio de estado que es significativo para la gestión de un elemento de configuración",
+        "Causa o causa potencial de uno o más incidentes",
+        "Una reducción en la calidad de un servicio no planificada"
+      ],
+      "respuesta": "Causa o causa potencial de uno o más incidentes"
+    },
+    {
+      "preguntaID": 29,
+      "texto": "¿Cuál es el propósito de la práctica de gestión de relaciones?",
+      "opciones": [
+        "Alinear las prácticas y los servicios de la organización con las necesidades cambiantes del negocio",
+        "Establecer y promover vínculos entre la organización y otras partes interesadas en niveles tácticos y estratégicos",
+        "Reducir la probabilidad y el impacto de incidentes mediante la identificación de sus causas reales y potenciales, y la gestión de soluciones temporales y errores conocidos",
+        "Minimizar el impacto negativo de incidentes mediante la restauración de la operación normal del servicio lo más rápidamente posible"
+      ],
+      "respuesta": "Establecer y promover vínculos entre la organización y otras partes interesadas en niveles tácticos y estratégicos"
+    },
+    {
+      "preguntaID": 30,
+      "texto": "¿Cuál de las siguientes opciones tiene como objetivo ayudar a una organización a adoptar y adaptar la guía de ITIL?",
+      "opciones": [
+        "Las cuatro dimensiones de la gestión de servicios",
+        "Los principios rectores",
+        "La cadena de valor del servicio",
+        "Las prácticas"
+      ],
+      "respuesta": "Los principios rectores"
+    },
+    {
+      "preguntaID": 31,
+      "texto": "¿Qué es una salida?",
+      "opciones": [
+        "Un cambio de estado que es significativo para la gestión de un elemento de configuración",
+        "Un posible evento que puede causar daño o pérdida",
+        "Un resultado para una parte interesada",
+        "Algo que se crea al realizar una actividad"
+      ],
+      "respuesta": "Algo que se crea al realizar una actividad"
+    },
+    {
+      "preguntaID": 32,
+      "texto": "¿Cuál es la razón para usar un conjunto equilibrado de métricas de servicio?",
+      "opciones": [
+        "Reduce el número de métricas que se necesita recopilar",
+        "Se generan informes independientes para cada elemento de servicio",
+        "Permite tener una visión de los servicios basada en los resultados",
+        "Facilita la recopilación automática de las métricas"
+      ],
+      "respuesta": "Permite tener una visión de los servicios basada en los resultados"
+    },
+    {
+      "preguntaID": 33,
+      "texto": "¿Por qué se deberían priorizar los incidentes?",
+      "opciones": [
+        "Para contribuir a la obtención automatizada de coincidencias de incidentes con problemas o errores conocidos",
+        "Para identificar a qué equipo de soporte se debería escalar el incidente",
+        "Para asegurar que se resuelvan primero los incidentes de alto impacto para el negocio",
+        "Para motivar un alto nivel de colaboración en los equipos y entre ellos"
+      ],
+      "respuesta": "Para asegurar que se resuelvan primero los incidentes de alto impacto para el negocio"
+    },
+    {
+      "preguntaID": 34,
+      "texto": "¿Qué práctica tiene un propósito que incluye ayudar a la organización a maximizar el valor, controlar los costos y gestionar los riesgos?",
+      "opciones": [
+        "Gestión de relaciones",
+        "Gestión de activos de TI",
+        "Gestión de liberaciones",
+        "Mesa de servicios"
+      ],
+      "respuesta": "Gestión de activos de TI"
+    },
+    {
+      "preguntaID": 35,
+      "texto": "¿Por qué el personal de la mesa de servicios debería detectar problemáticas recurrentes?",
+      "opciones": [
+        "Para ayudar a identificar problemas",
+        "Para escalar incidentes al equipo de soporte correcto",
+        "Para asegurar el manejo efectivo de las solicitudes de servicio",
+        "Para involucrar a la autoridad de cambios correcta"
+      ],
+      "respuesta": "Para ayudar a identificar problemas"
+    },
+    {
+      "preguntaID": 36,
+      "texto": "¿Qué actividad de la cadena de valor comunica el estado actual de las cuatro dimensiones de la gestión de servicios?",
+      "opciones": [
+        "Mejorar",
+        "Abordar",
+        "Obtener/construir",
+        "Planear"
+      ],
+      "respuesta": "Planear"
+    },
+    {
+      "preguntaID": 37,
+      "texto": "¿Qué principio rector está relacionado PRINCIPALMENTE con los ingresos y el crecimiento del cliente?",
+      "opciones": [
+        "Mantenerlo sencillo y práctico",
+        "Optimizar y automatizar",
+        "Progresar iterativamente con retroalimentación",
+        "Enfocarse en el valor"
+      ],
+      "respuesta": "Enfocarse en el valor"
+    },
+    {
+      "preguntaID": 38,
+      "texto": "¿Qué práctica proporciona visibilidad de los servicios de la organización mediante el registro y la generación de informes del desempeño de los servicios?",
+      "opciones": [
+        "Mesa de servicios",
+        "Gestión de niveles de servicio",
+        "Gestión de solicitudes de servicio",
+        "Gestión de la configuración de servicios"
+      ],
+      "respuesta": "Gestión de niveles de servicio"
+    },
+    {
+      "preguntaID": 39,
+      "texto": "¿Cuál de las siguientes opciones ejemplifica MEJOR un cambio de emergencia?",
+      "opciones": [
+        "La implementación de una nueva liberación planificada de una aplicación de software",
+        "La actualización de bajo riesgo de una computadora que se implementa como una solicitud de servicio",
+        "La implementación de un parche de seguridad en una aplicación de software crítica",
+        "Una implementación mayor de hardware y software planificada"
+      ],
+      "respuesta": "La implementación de un parche de seguridad en una aplicación de software crítica"
+    },
+    {
+      "preguntaID": 40,
+      "texto": "¿Qué principio rector recomienda evaluar el estado actual y decidir qué se puede reutilizar?",
+      "opciones": [
+        "Enfocarse en el valor",
+        "Comenzar donde esté",
+        "Colaborar y promover la visibilidad",
+        "Progresar iterativamente con retroalimentación"
+      ],
+      "respuesta": "Comenzar donde esté"
+    }
+]

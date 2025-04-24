@@ -1,0 +1,11 @@
+.numero-pregunta {
+    cursor: pointer;
+    margin: 0 3px;
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+  .numero-respondido {
+    background-color: #28a745;
+    color: white;
+  }
+  
