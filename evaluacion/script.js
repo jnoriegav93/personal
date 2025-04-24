@@ -12,7 +12,7 @@ async function iniciarEvaluacion() {
 function mostrarPregunta(indice) {
   actual = indice;
   const pregunta = preguntas[indice];
-  let html = `<h3 style="min-height:100px">${indice + 1}. ${pregunta.texto}</h3><ul class="list-group" style="min-height:270">`;
+  let html = `<h3 class="my-2" style="min-height:100px">${indice + 1}. ${pregunta.texto}</h3><ul class="list-group" style="min-height:270">`;
 
   pregunta.opciones.forEach((op, i) => {
     const checked = respuestas[indice] === op ? 'checked' : '';
