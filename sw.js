@@ -1,11 +1,13 @@
-const CACHE_NAME = "apps-cache-v1";
+const CACHE_NAME = "jnv-apps-v1";
 
 const urlsToCache = [
   "./",
-  "./index.html"
+  "./index.html",
+  "./manifest.json",
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
-// instalar
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -13,7 +15,6 @@ self.addEventListener("install", event => {
   );
 });
 
-// interceptar requests
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches.match(event.request)
