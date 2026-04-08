@@ -5,42 +5,79 @@
   <title>Mis Aplicaciones</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2563eb">
-  <link rel="apple-touch-icon" href="icon-192.png">
 
   <script>
     tailwind.config = { darkMode: 'class' }
   </script>
 
   <style>
-    /* fondo tech */
+    /* 🌌 ESPACIO EXTERIOR */
     body {
-      background: radial-gradient(circle at 20% 20%, #60a5fa40, transparent),
-                  radial-gradient(circle at 80% 30%, #818cf840, transparent),
-                  radial-gradient(circle at 50% 80%, #22d3ee30, transparent);
+      background: radial-gradient(circle at 50% 50%, #020617 0%, #000000 100%);
+      overflow-x: hidden;
     }
 
-    .dark body {
-      background: radial-gradient(circle at 20% 20%, #1e3a8a40, transparent),
-                  radial-gradient(circle at 80% 30%, #312e8140, transparent),
-                  radial-gradient(circle at 50% 80%, #0f172a, #020617);
+    /* ⭐ estrellas */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(white 1px, transparent 1px),
+        radial-gradient(white 1px, transparent 1px);
+      background-size: 3px 3px, 2px 2px;
+      background-position: 0 0, 50px 50px;
+      opacity: 0.15;
+      z-index: -3;
     }
 
+    /* 🌌 nebulosa animada */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      background:
+        radial-gradient(circle at 30% 40%, #3b82f655, transparent 60%),
+        radial-gradient(circle at 70% 60%, #a855f755, transparent 60%);
+      filter: blur(100px);
+      animation: galaxyMove 30s ease-in-out infinite alternate;
+      z-index: -2;
+    }
+
+    @keyframes galaxyMove {
+      0% { transform: translate(0,0) scale(1); }
+      100% { transform: translate(-5%, 5%) scale(1.1); }
+    }
+
+    /* 🧊 GLASS */
     .glass {
-      backdrop-filter: blur(16px);
-      background: rgba(255, 255, 255, 0.6);
+      position: relative;
+      backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: hidden;
     }
 
-    .dark .glass {
-      background: rgba(15, 23, 42, 0.6);
+    /* 💡 reflejo dinámico */
+    .glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        circle at var(--x, 50%) var(--y, 50%),
+        rgba(255,255,255,0.25),
+        transparent 40%
+      );
+      opacity: 0;
+      transition: opacity 0.3s;
     }
 
-    /* animaciones */
+    .glass:hover::before {
+      opacity: 1;
+    }
+
+    /* ✨ animaciones */
     .fade-in {
       animation: fadeIn 0.6s ease forwards;
     }
@@ -49,10 +86,11 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
   </style>
 </head>
 
-<body class="min-h-screen text-gray-800 dark:text-gray-100 transition">
+<body class="min-h-screen text-gray-100 transition">
 
   <div class="max-w-md mx-auto min-h-screen flex flex-col">
 
@@ -61,9 +99,7 @@
 
       <div class="flex items-center gap-3">
         <img src="icon-192.png" class="w-10 h-10 rounded-xl shadow">
-        <h1 class="text-lg font-semibold">
-          Mis Aplicaciones
-        </h1>
+        <h1 class="text-lg font-semibold">Mis Aplicaciones</h1>
       </div>
 
       <button id="themeToggle"
@@ -92,7 +128,6 @@
     const USER = "jnoriegav93";
     const REPO = "personal";
 
-    // 🌙 DARK MODE
     const html = document.documentElement;
     const toggle = document.getElementById("themeToggle");
 
@@ -107,10 +142,9 @@
       );
     });
 
-    // 🎨 ICONOS fallback
     const icons = {
       default: `
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <svg class="w-10 h-10 opacity-70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10"/>
         </svg>
       `
@@ -118,7 +152,6 @@
 
     const container = document.getElementById("appContainer");
 
-    // 🚀 DETECCIÓN AUTOMÁTICA DE CARPETAS
     async function loadApps() {
       const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents`);
       const data = await res.json();
@@ -134,11 +167,12 @@
         card.href = `./${folder.name}/`;
 
         card.className = `
-          flex flex-col items-center justify-center
+          glass flex flex-col items-center justify-center
           p-4 rounded-2xl
-          glass shadow
+          shadow-xl
+          transition duration-300
+          hover:scale-105 hover:shadow-2xl
           active:scale-95
-          transition
           fade-in
         `;
 
@@ -147,18 +181,26 @@
         card.innerHTML = `
           <img src="./${folder.name}/icon.png"
                onerror="this.replaceWith(createFallbackIcon())"
-               class="w-10 h-10 mb-2 rounded-lg"/>
+               class="w-10 h-10 mb-2 rounded-lg opacity-80"/>
 
-          <span class="text-sm font-medium text-center capitalize">
+          <span class="text-sm font-medium text-center capitalize text-white/80">
             ${folder.name.replace("-", " ")}
           </span>
         `;
+
+        // 💡 reflejo dinámico
+        card.addEventListener("mousemove", e => {
+          const rect = card.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width) * 100;
+          const y = ((e.clientY - rect.top) / rect.height) * 100;
+          card.style.setProperty("--x", x + "%");
+          card.style.setProperty("--y", y + "%");
+        });
 
         container.appendChild(card);
       });
     }
 
-    // fallback icon dinámico
     function createFallbackIcon() {
       const div = document.createElement("div");
       div.innerHTML = icons.default;
@@ -166,6 +208,15 @@
     }
 
     loadApps();
+
+    // 🪐 PARALLAX GLOBAL
+    document.addEventListener("mousemove", e => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 10;
+      const y = (e.clientY / window.innerHeight - 0.5) * 10;
+
+      document.body.style.transform =
+        `translate(${x * -0.3}px, ${y * -0.3}px)`;
+    });
 
     // 🔌 SERVICE WORKER
     if ("serviceWorker" in navigator) {
