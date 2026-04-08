@@ -131,9 +131,22 @@ function toggleGroupColorPicker(name) {
   if (!isOpen) el.style.display = '';
 }
 
+function toggleGroupColorPickerInList(name) {
+  _activeGroupColorName = name;
+  const id  = 'gcp-pl-' + CSS.escape(name);
+  const el  = document.getElementById(id);
+  if (!el) return;
+  const isOpen = el.style.display !== 'none';
+  document.querySelectorAll('[id^="gcp-"]').forEach(e => e.style.display = 'none');
+  if (!isOpen) el.style.display = '';
+}
+
 function onPickGroupColorActive(_el, color) {
+  const conflict = Object.entries(groupColors).find(([g, c]) => c === color && g !== _activeGroupColorName);
+  if (conflict) { notify(`Color ya usado por el grupo "${conflict[0]}"`); return; }
   groupColors[_activeGroupColorName] = color;
   renderGroupTab();
+  renderPieceList();
   if (optimized.length && colorMode === 'group') renderSheet();
 }
 
@@ -153,13 +166,14 @@ function renderGroupTab() {
   const icPencil = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3L10.58 12.42a4 4 0 0 1-1.342.885l-3.154 1.262a.5.5 0 0 1-.651-.65Z"/></svg>`;
   const icX = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/></svg>`;
   const usedGC = Object.values(groupColors);
-  cont.innerHTML = groups.map(g => {
+  const hint = `<div style="color:var(--text-muted);font-size:0.65rem;padding:6px 14px 2px;font-family:'IBM Plex Mono',monospace;font-style:italic;">Selecciona el círculo para mostrar la paleta de colores</div>`;
+  cont.innerHTML = hint + groups.map(g => {
     const count = pieces.filter(p => p.group === g).length;
     const gs    = g.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     const gc    = groupColors[g] || getNextGroupColor();
     if (!groupColors[g]) groupColors[g] = gc; // auto-asignar si no tiene
     const escapedId = CSS.escape(g);
-    const picker = buildColorPickerHTML(gc, usedGC.filter(c => c !== gc), 'onPickGroupColorActive');
+    const picker = buildGroupColorPickerHTML(gc, usedGC.filter(c => c !== gc), 'onPickGroupColorActive');
     return `<div>
       <div class="group-item">
         <div class="group-item-left">
@@ -337,7 +351,7 @@ function renderPieceList() {
   document.getElementById('pieceCount').textContent = pieces.length;
 
   if (!pieces.length) {
-    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:0.78rem;font-family:\'IBM Plex Mono\',monospace;">Sin piezas.</div>';
+    container.innerHTML = '<div style="text-align:center;padding:32px 20px;color:var(--text-muted);font-size:0.78rem;font-family:\'IBM Plex Mono\',monospace;line-height:1.9;">No hay piezas registradas.<br><span style="font-size:0.68rem;opacity:0.65;">Agrega piezas usando los botones de arriba.</span></div>';
     return;
   }
 
@@ -390,14 +404,21 @@ function renderPieceList() {
   groups.forEach(g => {
     const items = byGroup[g] || [];
     const collapsed = groupCollapsed[g];
-    const gs = g.replace(/'/g, "\\'");
+    const gs = g.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const gc = groupColors[g] || '#888';
+    const escapedId = CSS.escape(g);
+    const usedGC = Object.entries(groupColors).filter(([gn]) => gn !== g).map(([,c]) => c);
+    const pickerHtml = buildGroupColorPickerHTML(gc, usedGC, 'onPickGroupColorActive');
     html += `<div class="group-accordion">
       <div class="group-acc-header" onclick="toggleGroupCollapse('${gs}')">
         <div style="display:flex;align-items:center;gap:6px;">
-          <span class="group-acc-dot"></span>
+          <button class="group-color-btn" style="background:${gc};" onclick="event.stopPropagation();toggleGroupColorPickerInList('${gs}')" title="Cambiar color del grupo"></button>
           <span class="group-acc-name">${g} <span class="group-acc-count">${items.length}</span></span>
         </div>
         <span class="chevron${collapsed ? '' : ' open'}">${CHEVRON_SVG}</span>
+      </div>
+      <div id="gcp-pl-${escapedId}" style="display:none;padding:8px 14px 10px;background:var(--bg);border-bottom:1px solid var(--border);">
+        ${pickerHtml}
       </div>
       ${!collapsed ? `<div class="group-acc-body">${items.map(({p,i}) => renderItem(p,i)).join('') || '<div class="group-empty">Sin piezas en este grupo.</div>'}</div>` : ''}
     </div>`;

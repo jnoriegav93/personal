@@ -77,6 +77,39 @@ function buildColorPickerHTML(selectedColor, usedColors, onClickExpr) {
   return html + '</div>';
 }
 
+// Picker para grupos: deshabilita colores ya usados por otros grupos
+function buildGroupColorPickerHTML(selectedColor, usedColors, onClickExpr) {
+  const used = new Set(usedColors || []);
+  let html = '<div class="color-picker-grid">';
+  COLORS.forEach(c => {
+    const sel   = c === selectedColor;
+    const inUse = used.has(c) && !sel;
+    const attrs = inUse
+      ? `disabled title="Color ya usado por otro grupo"`
+      : `onclick="${onClickExpr}(this,'${c}')" title="${c}"`;
+    html += `<button type="button" class="cp-dot${sel ? ' selected' : ''}${inUse ? ' in-use' : ''}" style="background:${c};" ${attrs}>${sel ? _SVG_CHECK : ''}</button>`;
+  });
+  return html + '</div>';
+}
+
+// ── Tabs móvil ────────────────────────────────────────────────────
+function setMobileTab(tab) {
+  const mainEl = document.querySelector('main');
+  const btnProps = document.getElementById('mTabProps');
+  const btnVista = document.getElementById('mTabVista');
+  if (tab === 'vista') {
+    mainEl.classList.add('mobile-vista');
+    btnProps.classList.remove('active');
+    btnVista.classList.add('active');
+    // Re-renderizar si hay optimización (el canvas estaba oculto)
+    if (optimized.length) setTimeout(renderSheet, 50);
+  } else {
+    mainEl.classList.remove('mobile-vista');
+    btnProps.classList.add('active');
+    btnVista.classList.remove('active');
+  }
+}
+
 // ── Modo oscuro / claro ───────────────────────────────────────────
 function toggleDarkMode() {
   const html  = document.documentElement;

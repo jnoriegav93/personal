@@ -44,11 +44,11 @@ tailwind.config = {
   .btn-icon{padding:5px 8px;}
 
   /* ── Forms ── */
-  input[type=text],input[type=number],textarea,select{width:100%;border:1.5px solid var(--border);border-radius:4px;padding:6px 8px;font-size:.8rem;font-family:'IBM Plex Sans',sans-serif;background:var(--bg-input);color:var(--text);outline:none;transition:border-color .15s,background .2s;}
+  input[type=text],input[type=number],textarea,select{width:100%;border:1.5px solid var(--border);border-radius:4px;padding:6px 8px;font-size:.8rem;font-family:'IBM Plex Sans',sans-serif;background:var(--bg-input);color:var(--text);outline:none;transition:border-color .15s,background .2s;box-sizing:border-box;height:32px;}
   input[readonly]{background:var(--bg)!important;color:var(--text-muted)!important;cursor:default;}
   input[readonly]:focus{border-color:var(--border)!important;}
   input:not([readonly]):focus,textarea:focus,select:focus{border-color:var(--accent)!important;}
-  textarea{resize:none;font-family:'IBM Plex Mono',monospace;font-size:.74rem;line-height:1.5;}
+  textarea{resize:none;font-family:'IBM Plex Mono',monospace;font-size:.74rem;line-height:1.5;height:auto;}
   select{cursor:pointer;}
 
   /* ── Modals ── */
@@ -197,11 +197,25 @@ tailwind.config = {
   .group-color-btn{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.2);cursor:pointer;flex-shrink:0;transition:transform .12s;}
   .group-color-btn:hover{transform:scale(1.18);}
 
+  /* ── Mobile tabs ── */
+  .mobile-tab{flex:1;padding:9px 12px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s;margin-bottom:-2px;}
+  .mobile-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
   /* ── Responsive ── */
   @media(max-width:767px){
     #panelResizeHandle{display:none;}
-    #panelLeft{width:100%!important;min-width:unset!important;max-height:50vh;border-right:none;border-bottom:1.5px solid var(--border);}
-    main{flex-direction:column;overflow-y:auto;}
+    main{flex-direction:column;overflow:hidden;}
+    #panelLeft{width:100%!important;min-width:unset!important;height:auto!important;max-height:none!important;flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:none;border-bottom:none!important;}
+    #propsContent{flex:1;overflow-y:auto;min-height:0;}
+    #rightPanel{display:none;flex:1;overflow:hidden;flex-direction:column;}
+    main.mobile-vista #panelLeft{flex:none;}
+    main.mobile-vista #propsContent{display:none;}
+    main.mobile-vista #rightPanel{display:flex;}
+    #detailBody{flex:none!important;overflow:visible!important;min-height:350px;}
+    #pieceList{flex:none!important;overflow-y:visible!important;height:auto!important;}
+    #gruposContent{flex:none!important;overflow:visible!important;}
+    #gruposList{overflow-y:visible!important;max-height:none!important;}
+    #canvasArea{flex:1;min-height:0!important;}
     #dlJpg,#dlPdf{display:none;}
   }
   @media(max-width:380px){
@@ -247,7 +261,7 @@ tailwind.config = {
         Importar
       </button>
       <button class="btn btn-outline btn-sm" onclick="saveProject()" title="Exportar proyecto (.jnvcut)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;flex-shrink:0;"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z"/><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px;flex-shrink:0;"><path fill-rule="evenodd" d="M22,16 L22,20 C22,21.1045695 21.1045695,22 20,22 L4,22 C2.8954305,22 2,21.1045695 2,20 L2,16 L4,16 L4,20 L20,20 L20,16 L22,16 Z M13,12.5857864 L16.2928932,9.29289322 L17.7071068,10.7071068 L12,16.4142136 L6.29289322,10.7071068 L7.70710678,9.29289322 L11,12.5857864 L11,2 L13,2 L13,12.5857864 Z"/></svg>
         Exportar
       </button>
     </div>
@@ -256,6 +270,15 @@ tailwind.config = {
       <input type="text" id="projectNameInput" placeholder="Nombre del proyecto..." maxlength="30" oninput="onProjectNameInput(this)"
         style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;" autocomplete="off">
     </div>
+
+    <!-- ── MOBILE TAB BAR (oculto en desktop) ── -->
+    <div id="mobileTabBar" class="flex md:hidden flex-shrink-0" style="border-bottom:2px solid var(--border);background:var(--bg);">
+      <button class="mobile-tab active" id="mTabProps" onclick="setMobileTab('props')">Propiedades</button>
+      <button class="mobile-tab" id="mTabVista" onclick="setMobileTab('vista')">Vista de corte</button>
+    </div>
+
+    <!-- ── PROPS CONTENT: Material + Detalle (scrolleable en mobile) ── -->
+    <div id="propsContent" class="flex flex-col flex-1 overflow-hidden scroll-thin">
 
     <!-- Material config (accordion) -->
     <div class="px-3.5 py-[9px] flex items-center justify-between flex-shrink-0 cursor-pointer select-none" style="border-bottom:1px solid var(--border);background:var(--bg);" onclick="toggleMaterial()">
@@ -357,21 +380,25 @@ tailwind.config = {
       </div>
 
     </div><!-- /detailBody -->
-  </div>
+
+    </div><!-- /propsContent -->
+  </div><!-- /panelLeft -->
 
   <!-- ── RESIZE HANDLE ── -->
   <div id="panelResizeHandle" class="w-[5px] flex-shrink-0 cursor-col-resize relative z-10 transition-colors duration-150 hover:bg-[var(--accent)]" style="background:transparent;"></div>
 
   <!-- ── PANEL DERECHO ── -->
-  <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+  <div class="flex-1 flex flex-col overflow-hidden min-w-0" id="rightPanel">
     <div class="flex-1 flex flex-col overflow-hidden min-h-0">
-      <!-- Toolbar -->
-      <div class="px-3.5 py-[9px] flex items-center gap-[7px] flex-wrap flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg-panel);">
-        <button class="btn btn-outline btn-icon flex-shrink-0" id="panelToggleBtn" onclick="toggleLeftPanel()" title="Mostrar/ocultar panel">
+      <!-- Vista de corte: título (estilo igual que Material / Detalle / Sobrantes) -->
+      <div class="px-3.5 py-[9px] flex items-center justify-between flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg);">
+        <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase" style="color:var(--text-muted);">Vista de corte</span>
+        <button class="btn btn-outline btn-icon hidden md:inline-flex" id="panelToggleBtn" onclick="toggleLeftPanel()" title="Mostrar/ocultar panel">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 0 1 2.75 4h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4.75ZM2 10a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 10Zm0 5.25a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/></svg>
         </button>
-        <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase flex-shrink-0" style="color:var(--text-muted);">Vista de corte</span>
-        <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
+      </div>
+      <!-- Controles (zoom, láminas, medir, exportar) -->
+      <div class="px-3.5 py-[9px] flex items-center gap-[7px] flex-wrap flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg-panel);">
         <!-- Zoom -->
         <div class="flex items-center gap-[5px] flex-shrink-0">
           <span class="text-[0.7rem]" style="color:var(--text-muted);">Zoom:</span>
