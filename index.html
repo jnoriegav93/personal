@@ -12,10 +12,10 @@
   </script>
 
   <style>
-    /* 🌌 ESPACIO EXTERIOR */
+    /* 🌌 FONDO FIJO */
     body {
       background: radial-gradient(circle at 50% 50%, #020617 0%, #000000 100%);
-      overflow-x: hidden;
+      overflow: hidden; /* ⛔ evita scroll global */
     }
 
     /* ⭐ estrellas */
@@ -29,10 +29,10 @@
       background-size: 3px 3px, 2px 2px;
       background-position: 0 0, 50px 50px;
       opacity: 0.15;
-      z-index: -3;
+      z-index: -2;
     }
 
-    /* 🌌 nebulosa animada */
+    /* 🌌 nebulosa (estática ahora) */
     body::after {
       content: "";
       position: fixed;
@@ -41,13 +41,14 @@
         radial-gradient(circle at 30% 40%, #3b82f655, transparent 60%),
         radial-gradient(circle at 70% 60%, #a855f755, transparent 60%);
       filter: blur(100px);
-      animation: galaxyMove 30s ease-in-out infinite alternate;
-      z-index: -2;
+      z-index: -1;
     }
 
-    @keyframes galaxyMove {
-      0% { transform: translate(0,0) scale(1); }
-      100% { transform: translate(-5%, 5%) scale(1.1); }
+    /* 📱 CONTENEDOR CON SCROLL */
+    .app-scroll {
+      height: 100vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* 🧊 GLASS */
@@ -90,12 +91,13 @@
   </style>
 </head>
 
-<body class="min-h-screen text-gray-100 transition">
+<body class="text-gray-100">
 
-  <div class="max-w-md mx-auto min-h-screen flex flex-col">
+  <!-- 📱 SCROLL SOLO AQUÍ -->
+  <div class="app-scroll max-w-md mx-auto flex flex-col">
 
     <!-- HEADER -->
-    <header class="flex items-center justify-between px-4 pt-6 pb-4">
+    <header class="flex items-center justify-between px-4 pt-6 pb-4 sticky top-0 z-10">
 
       <div class="flex items-center gap-3">
         <img src="icon-192.png" class="w-10 h-10 rounded-xl shadow">
@@ -208,15 +210,6 @@
     }
 
     loadApps();
-
-    // 🪐 PARALLAX GLOBAL
-    document.addEventListener("mousemove", e => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 10;
-      const y = (e.clientY / window.innerHeight - 0.5) * 10;
-
-      document.body.style.transform =
-        `translate(${x * -0.3}px, ${y * -0.3}px)`;
-    });
 
     // 🔌 SERVICE WORKER
     if ("serviceWorker" in navigator) {
