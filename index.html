@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mis Apps</title>
+  <title>Mis Aplicaciones</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <!-- Tailwind -->
@@ -14,44 +14,69 @@
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <script>
-    tailwind.config = {
-      darkMode: 'class'
-    }
+    tailwind.config = { darkMode: 'class' }
   </script>
 
   <style>
+    /* fondo tech */
+    body {
+      background: radial-gradient(circle at 20% 20%, #60a5fa40, transparent),
+                  radial-gradient(circle at 80% 30%, #818cf840, transparent),
+                  radial-gradient(circle at 50% 80%, #22d3ee30, transparent);
+    }
+
+    .dark body {
+      background: radial-gradient(circle at 20% 20%, #1e3a8a40, transparent),
+                  radial-gradient(circle at 80% 30%, #312e8140, transparent),
+                  radial-gradient(circle at 50% 80%, #0f172a, #020617);
+    }
+
     .glass {
-      backdrop-filter: blur(14px);
-      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.6);
     }
 
     .dark .glass {
-      background: rgba(30, 41, 59, 0.65);
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    /* animaciones */
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-gray-900 dark:to-gray-800 transition">
+<body class="min-h-screen text-gray-800 dark:text-gray-100 transition">
 
-  <!-- APP CONTAINER -->
   <div class="max-w-md mx-auto min-h-screen flex flex-col">
 
-    <!-- HEADER (tipo app móvil) -->
+    <!-- HEADER -->
     <header class="flex items-center justify-between px-4 pt-6 pb-4">
-      <h1 class="text-xl font-bold text-gray-800 dark:text-white">
-        🚀 Apps
-      </h1>
+
+      <div class="flex items-center gap-3">
+        <img src="icon-192.png" class="w-10 h-10 rounded-xl shadow">
+        <h1 class="text-lg font-semibold">
+          Mis Aplicaciones
+        </h1>
+      </div>
 
       <button id="themeToggle"
         class="w-10 h-10 flex items-center justify-center rounded-xl glass shadow">
         🌙
       </button>
+
     </header>
 
     <!-- CONTENIDO -->
     <main class="flex-1 px-4 pb-6">
 
-      <div class="glass rounded-3xl p-4 shadow-lg">
+      <div class="glass rounded-3xl p-4 shadow-xl">
 
         <div id="appContainer"
           class="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -64,6 +89,9 @@
   </div>
 
   <script>
+    const USER = "jnoriegav93";
+    const REPO = "personal";
+
     // 🌙 DARK MODE
     const html = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -79,44 +107,8 @@
       );
     });
 
-    // 🔧 CONFIG
-    const config = {
-      "jnv-cut": "membrane",
-      "evaluacion": "paper",
-      "googlemap": "map",
-      "jm-ranking": "bars"
-    };
-
-    const apps = [
-      "jnv-cut",
-      "evaluacion",
-      "googlemap",
-      "jm-ranking"
-    ];
-
-    // 🎨 ICONOS
+    // 🎨 ICONOS fallback
     const icons = {
-      membrane: `
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="9"/>
-          <circle cx="12" cy="12" r="4"/>
-        </svg>
-      `,
-      paper: `
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
-        </svg>
-      `,
-      map: `
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path d="M9 4l6 2 6-2v16l-6 2-6-2-6 2V6l6-2z"/>
-        </svg>
-      `,
-      bars: `
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path d="M4 20V10M10 20V6M16 20V2"/>
-        </svg>
-      `,
       default: `
         <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10"/>
@@ -126,33 +118,54 @@
 
     const container = document.getElementById("appContainer");
 
-    apps.forEach(app => {
-      const iconKey = config[app] || "default";
-      const icon = icons[iconKey] || icons["default"];
+    // 🚀 DETECCIÓN AUTOMÁTICA DE CARPETAS
+    async function loadApps() {
+      const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents`);
+      const data = await res.json();
 
-      const card = document.createElement("a");
-      card.href = `./${app}/`;
+      const folders = data.filter(item =>
+        item.type === "dir" &&
+        !item.name.startsWith(".")
+      );
 
-      card.className = `
-        flex flex-col items-center justify-center
-        p-4 rounded-2xl
-        glass shadow
-        active:scale-95
-        transition
-      `;
+      folders.forEach((folder, i) => {
 
-      card.innerHTML = `
-        <div class="text-blue-600 dark:text-blue-400 mb-2">
-          ${icon}
-        </div>
+        const card = document.createElement("a");
+        card.href = `./${folder.name}/`;
 
-        <span class="text-sm font-medium text-gray-800 dark:text-white text-center capitalize">
-          ${app.replace("-", " ")}
-        </span>
-      `;
+        card.className = `
+          flex flex-col items-center justify-center
+          p-4 rounded-2xl
+          glass shadow
+          active:scale-95
+          transition
+          fade-in
+        `;
 
-      container.appendChild(card);
-    });
+        card.style.animationDelay = `${i * 0.05}s`;
+
+        card.innerHTML = `
+          <img src="./${folder.name}/icon.png"
+               onerror="this.replaceWith(createFallbackIcon())"
+               class="w-10 h-10 mb-2 rounded-lg"/>
+
+          <span class="text-sm font-medium text-center capitalize">
+            ${folder.name.replace("-", " ")}
+          </span>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // fallback icon dinámico
+    function createFallbackIcon() {
+      const div = document.createElement("div");
+      div.innerHTML = icons.default;
+      return div;
+    }
+
+    loadApps();
 
     // 🔌 SERVICE WORKER
     if ("serviceWorker" in navigator) {
