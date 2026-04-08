@@ -18,10 +18,13 @@
   </script>
 
   <style>
-    /* 🌌 FONDO FIJO */
+    html, body {
+  height: 100%;
+}
     body {
       background: radial-gradient(circle at 50% 50%, #020617 0%, #000000 100%);
-      overflow: hidden; /* ⛔ evita scroll global */
+      min-height: 100vh;
+      overscroll-behavior-y: auto; /* ✅ permite pull-to-refresh */
     }
 
     /* ⭐ estrellas */
@@ -52,9 +55,9 @@
 
     /* 📱 CONTENEDOR CON SCROLL */
     .app-scroll {
-      height: 100vh;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     /* 🧊 GLASS */
@@ -93,6 +96,10 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    #appContainerWrapper {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; /* evita rebote raro */
+}
 
   </style>
 </head>
@@ -118,17 +125,19 @@
     </header>
 
     <!-- CONTENIDO -->
-    <main class="flex-1 px-4 pb-6">
+   <main class="flex-1 px-4 pb-6 overflow-hidden">
 
-      <div class="glass rounded-3xl p-4 shadow-xl">
-
+    <div class="glass rounded-3xl p-4 shadow-xl h-full flex flex-col">
+  
+      <div id="appContainerWrapper" class="flex-1 overflow-y-auto">
         <div id="appContainer"
           class="grid grid-cols-2 gap-4 sm:grid-cols-3">
         </div>
-
       </div>
-
-    </main>
+  
+    </div>
+  
+  </main>
 
   </div>
 
