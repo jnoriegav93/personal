@@ -1,0 +1,158 @@
+{
+  "version": "1.4",
+  "created": "2026-04-08T15:00:46.963Z",
+  "projectName": "Py1 Escritorios muebles tv",
+  "material": {
+    "presetIdx": "0",
+    "length": "2440",
+    "width": "2150",
+    "thick": "18",
+    "kerf": "3",
+    "unit": "cm"
+  },
+  "pieces": [
+    {
+      "name": "Techo (Superior)",
+      "length": 839,
+      "width": 140,
+      "qty": 2,
+      "tag": "A",
+      "color": "#4A90D9",
+      "group": "escritorio"
+    },
+    {
+      "name": "Fondo (Panel Trasero)",
+      "length": 839,
+      "width": 624,
+      "qty": 2,
+      "tag": "B",
+      "color": "#E8812A",
+      "group": "escritorio"
+    },
+    {
+      "name": "Lateral Izquierdo",
+      "length": 660,
+      "width": 140,
+      "qty": 2,
+      "tag": "C",
+      "color": "#5BA85A",
+      "group": "escritorio"
+    },
+    {
+      "name": "Lateral Derecho",
+      "length": 660,
+      "width": 140,
+      "qty": 2,
+      "tag": "D",
+      "color": "#9B6DB5",
+      "group": "escritorio"
+    },
+    {
+      "name": "Repisa Superior (Interna)",
+      "length": 839,
+      "width": 100,
+      "qty": 2,
+      "tag": "E",
+      "color": "#D4535C",
+      "group": "escritorio"
+    },
+    {
+      "name": "Repisa Inferior (Zócalo)",
+      "length": 839,
+      "width": 100,
+      "qty": 2,
+      "tag": "F",
+      "color": "#3AACB8",
+      "group": "escritorio"
+    },
+    {
+      "name": "Mesa Plegable",
+      "length": 940,
+      "width": 685,
+      "qty": 2,
+      "tag": "H",
+      "color": "#C88B2E",
+      "group": "escritorio"
+    },
+    {
+      "name": "Bases",
+      "length": 1580,
+      "width": 300,
+      "qty": 2,
+      "tag": "",
+      "color": "#7A8FA6",
+      "group": "tv"
+    },
+    {
+      "name": "Laterales y divisiones",
+      "length": 300,
+      "width": 300,
+      "qty": 4,
+      "tag": "",
+      "color": "#A67C52",
+      "group": "tv"
+    },
+    {
+      "name": "Refuerzo trasero",
+      "length": 756,
+      "width": 100,
+      "qty": 1,
+      "tag": "",
+      "group": "tv",
+      "color": "#5E9E8B"
+    },
+    {
+      "name": "Refuerzo interno",
+      "length": 660,
+      "width": 125,
+      "qty": 1,
+      "tag": "",
+      "group": "tv",
+      "color": "#D97BB6"
+    },
+    {
+      "name": "Divisor Central RepisaG",
+      "length": 100,
+      "width": 100,
+      "qty": 2,
+      "tag": "",
+      "group": "escritorio",
+      "color": "#6B8E23"
+    },
+    {
+      "name": "liston 1",
+      "length": 140,
+      "width": 660,
+      "qty": 1,
+      "tag": "Sobrante",
+      "group": "",
+      "color": "#CD853F"
+    },
+    {
+      "name": "liston 2",
+      "length": 660,
+      "width": 100,
+      "qty": 1,
+      "tag": "Sobrante",
+      "group": "",
+      "color": "#708090"
+    },
+    {
+      "name": "Sugerido 1",
+      "length": 150,
+      "width": 603,
+      "qty": 1,
+      "tag": "Sobrante",
+      "group": "",
+      "color": "#2E8B57"
+    }
+  ],
+  "groups": [
+    "tv",
+    "escritorio"
+  ],
+  "groupColors": {
+    "tv": "#EF4444",
+    "escritorio": "#DC2626"
+  }
+}
