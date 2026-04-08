@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JNVCut — Optimizador de Cortes</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['"IBM Plex Sans"', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'monospace'],
+      }
+    }
+  }
+}
+</script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* abc */
+  /* ── Theme variables ── */
+  :root{--accent:#E84B1C;--accent-dim:#c43c13;--bg:#1A1916;--bg-panel:#242220;--bg-input:#2e2b28;--border:#3a3733;--border-light:#4a4744;--text:#F0EDE8;--text-muted:#8A8780;--green:#5BA85A;--amber:#E8812A;--red:#D4535C;--header-bg:#0f0e0c;--header-text:#F0EDE8;--shadow:0 4px 16px rgba(0,0,0,.4);}
+  [data-theme="light"]{--bg:#F5F3EE;--bg-panel:#FFFFFF;--bg-input:#FFFFFF;--border:#E0DDD6;--border-light:#cac6be;--text:#1A1916;--text-muted:#7A7872;--header-bg:#1A1916;--header-text:#F5F3EE;--shadow:0 4px 16px rgba(0,0,0,.12);}
+  @supports not (height:100dvh){body{height:100vh;}}
+
+  /* ── Buttons ── */
+  .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:4px;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .15s;border:1.5px solid transparent;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;}
+  .btn-ghost{background:transparent;border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.85);}
+  .btn-ghost:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.4);}
+  .btn-accent{background:var(--accent);color:white;border-color:var(--accent);}
+  .btn-accent:hover{background:var(--accent-dim);}
+  .btn-outline{background:var(--bg-input);border-color:var(--border);color:var(--text);}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-danger{background:var(--bg-input);border-color:rgba(212,83,92,.35);color:var(--red);}
+  .btn-danger:hover{background:rgba(212,83,92,.08);border-color:var(--red);}
+  .btn-success{background:var(--bg-input);border-color:rgba(76,175,80,.35);color:var(--green);}
+  .btn-success:hover{background:rgba(76,175,80,.08);border-color:var(--green);}
+  .btn-sm{padding:4px 10px;font-size:.72rem;}
+  .btn-icon{padding:5px 8px;}
+
+  /* ── Forms ── */
+  input[type=text],input[type=number],textarea,select{width:100%;border:1.5px solid var(--border);border-radius:4px;padding:6px 8px;font-size:.8rem;font-family:'IBM Plex Sans',sans-serif;background:var(--bg-input);color:var(--text);outline:none;transition:border-color .15s,background .2s;}
+  input[readonly]{background:var(--bg)!important;color:var(--text-muted)!important;cursor:default;}
+  input[readonly]:focus{border-color:var(--border)!important;}
+  input:not([readonly]):focus,textarea:focus,select:focus{border-color:var(--accent)!important;}
+  textarea{resize:none;font-family:'IBM Plex Mono',monospace;font-size:.74rem;line-height:1.5;}
+  select{cursor:pointer;}
+
+  /* ── Modals ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;}
+  .modal-overlay.open{display:flex;align-items:center;justify-content:center;}
+  .modal-drag-handle{cursor:grab;user-select:none;}
+  .modal-drag-handle:active{cursor:grabbing;}
+
+  /* ── Notification ── */
+  #notification{position:fixed;bottom:20px;right:20px;background:var(--header-bg);color:var(--header-text);padding:10px 16px;border-radius:6px;font-size:.8rem;font-family:'IBM Plex Mono',monospace;transform:translateY(60px);opacity:0;transition:all .3s;z-index:300;border-left:3px solid var(--accent);}
+  #notification.show{transform:translateY(0);opacity:1;}
+
+  /* ── Chevron ── */
+  .chevron{transition:transform .2s;display:inline-flex;align-items:center;}
+  .chevron.open{transform:rotate(180deg);}
+
+  /* ── Scrollbar ── */
+  .scroll-thin::-webkit-scrollbar{width:4px;}
+  .scroll-thin::-webkit-scrollbar-track{background:transparent;}
+  .scroll-thin::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:2px;}
+
+  /* ── Canvas ── */
+  #cutCanvas{background:white;border:1.5px solid var(--border);border-radius:6px;}
+  #measureCanvas{position:absolute;top:0;left:0;cursor:crosshair;border-radius:6px;display:none;}
+  #measureTooltip{position:fixed;background:var(--header-bg);color:var(--header-text);padding:5px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;z-index:50;display:none;white-space:nowrap;border-left:3px solid var(--accent);align-items:center;gap:8px;}
+  #measureTooltip .tooltip-close{background:none;border:none;color:inherit;cursor:pointer;font-size:.8rem;opacity:.6;padding:0;line-height:1;flex-shrink:0;}
+  #measureTooltip .tooltip-close:hover{opacity:1;}
+
+  /* ── Active/state toggles ── */
+  .left-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tab.active{background:var(--text);color:var(--bg);}
+  .unit-badge.active{background:rgba(232,75,28,.08);border-color:var(--accent);color:var(--accent);}
+  .div-pill.active{background:var(--accent);border-color:var(--accent);color:white;}
+  .tag-pill.selected{background:var(--accent);border-color:var(--accent);color:white;}
+  .sheet-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
+  #measureBtn.active{background:var(--accent)!important;border-color:var(--accent)!important;color:white!important;}
+  #cmPiece.active,#cmGroup.active{background:var(--bg-input);border-color:var(--accent);color:var(--accent);}
+  .th-field-select.mapped{background:rgba(232,75,28,.06);color:var(--accent);border-top-color:var(--accent);}
+  .piece-item.is-suggestion{border-style:dashed;}
+  .badge{display:inline-flex;align-items:center;padding:1px 5px;border-radius:3px;font-size:.6rem;font-family:'IBM Plex Mono',monospace;font-weight:600;}
+
+  /* ── Piece List ── */
+  .piece-item{display:flex;align-items:stretch;margin-bottom:4px;border-radius:4px;background:var(--bg);border:1.5px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:.74rem;transition:border-color .15s;overflow:hidden;}
+  .piece-item:hover{border-color:var(--accent);}
+  .piece-accent{width:4px;flex-shrink:0;}
+  .piece-body{display:flex;align-items:center;gap:7px;padding:7px 8px;flex:1;min-width:0;}
+  .piece-info{flex:1;min-width:0;}
+  .piece-label{font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .piece-sub{color:var(--text-muted);font-size:.66rem;margin-top:1px;}
+  .piece-actions{display:flex;align-items:center;gap:2px;padding:0 6px 0 0;flex-shrink:0;}
+  .piece-btn{color:var(--text-muted);cursor:pointer;font-size:.78rem;padding:3px 5px;border-radius:3px;border:none;background:none;display:inline-flex;align-items:center;justify-content:center;}
+  .piece-btn:hover{background:var(--bg-input);color:var(--accent);}
+  .piece-btn.del:hover{color:var(--red);}
+
+  /* ── Group Accordion ── */
+  .group-accordion{border-bottom:1px solid var(--border);}
+  .group-acc-header{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;cursor:pointer;user-select:none;background:var(--bg);transition:background .1s;}
+  .group-acc-header:hover{background:var(--bg-input);}
+  .group-acc-name{font-family:'IBM Plex Mono',monospace;font-size:.68rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);}
+  .group-acc-count{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--bg-input);border:1px solid var(--border);font-size:.6rem;color:var(--text-muted);margin-left:5px;font-weight:500;}
+  .group-acc-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+  .group-acc-body{padding:4px 0;}
+  .group-empty{padding:8px 14px;font-size:.73rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
+
+  /* ── Group Management Tab ── */
+  .group-item{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);transition:background .1s;}
+  .group-item:hover{background:var(--bg-input);}
+  .group-item-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0;}
+  .group-item-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+  .group-item-name{font-family:'IBM Plex Mono',monospace;font-size:.77rem;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .group-item-count{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text-muted);flex-shrink:0;background:var(--bg-input);border:1px solid var(--border);padding:1px 5px;border-radius:10px;}
+
+  /* ── Sheet Buttons ── */
+  .sheet-btn{padding:3px 9px;border-radius:3px;font-size:.7rem;font-family:'IBM Plex Mono',monospace;font-weight:500;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text-muted);cursor:pointer;transition:all .15s;line-height:1.4;}
+  .sheet-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* ── Remnant Cards ── */
+  .remnant-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+  @media(min-width:640px){.remnant-grid{grid-template-columns:1fr 1fr;}}
+  @media(min-width:1024px){.remnant-grid{grid-template-columns:1fr 1fr 1fr;}}
+  .remnant-card{background:var(--bg-input);border:1.5px solid var(--border);border-radius:6px;padding:10px 12px;}
+  .remnant-card:hover{border-color:var(--accent);}
+  .rem-size{font-family:'IBM Plex Mono',monospace;font-size:.85rem;font-weight:600;color:var(--text);}
+  .rem-area{font-size:.68rem;color:var(--text-muted);margin-top:1px;font-family:'IBM Plex Mono',monospace;}
+  .rem-sheet-badge{display:inline-flex;align-items:center;padding:1px 6px;border-radius:3px;font-size:.62rem;font-family:'IBM Plex Mono',monospace;font-weight:600;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);}
+  .rem-add-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:3px;border:1.5px solid var(--accent);color:var(--accent);background:transparent;font-size:.68rem;font-family:'IBM Plex Mono',monospace;cursor:pointer;margin-top:8px;transition:all .15s;}
+  .rem-add-btn:hover{background:var(--accent);color:white;}
+  .rem-type-badge{display:inline-flex;align-items:center;padding:1px 6px;border-radius:3px;font-size:.6rem;font-family:'IBM Plex Mono',monospace;font-weight:600;border:1px solid;}
+  .rem-type-strip{background:rgba(74,144,217,.1);border-color:rgba(74,144,217,.4);color:#4A90D9;}
+  .rem-type-square{background:rgba(91,168,90,.1);border-color:rgba(91,168,90,.4);color:#5BA85A;}
+  .rem-type-rect{background:rgba(232,129,42,.1);border-color:rgba(232,129,42,.4);color:#E8812A;}
+
+  /* ── Import Tables ── */
+  .map-wrap{overflow-x:auto;}
+  .map-th{border:1px solid var(--border);vertical-align:top;padding:0;background:var(--bg);}
+  .map-th.idx-th{padding:4px 7px;font-size:.63rem;color:var(--text-muted);}
+  .th-inner{padding:4px 6px 0;}
+  .th-col-label{font-size:.58rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;}
+  .th-col-header{font-size:.66rem;font-weight:600;color:var(--text);padding:2px 0 1px;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;}
+  .th-field-select{width:100%;border:none;border-top:1.5px solid var(--border);background:var(--bg-panel);color:var(--text);font-size:.66rem;font-family:'IBM Plex Mono',monospace;padding:3px;outline:none;cursor:pointer;margin-top:2px;}
+  .map-table{border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:.71rem;white-space:nowrap;}
+  .map-table td{padding:3px 7px;border:1px solid var(--border);color:var(--text);max-width:100px;overflow:hidden;text-overflow:ellipsis;}
+  .map-table tr:nth-child(even) td{background:var(--bg);}
+  .preview-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:.71rem;}
+  .preview-table th{background:var(--bg);padding:4px 7px;text-align:left;border:1px solid var(--border);color:var(--text-muted);font-weight:500;}
+  .preview-table td{padding:3px 7px;border:1px solid var(--border);color:var(--text);white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;}
+  .preview-table tr:nth-child(even) td{background:var(--bg);}
+  .import-summary-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:.72rem;}
+  .import-summary-table th{background:var(--bg);padding:5px 8px;text-align:left;border:1px solid var(--border);color:var(--text-muted);font-weight:600;font-size:.65rem;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+  .import-summary-table td{padding:4px 8px;border:1px solid var(--border);color:var(--text);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .import-summary-table tr:nth-child(even) td{background:var(--bg);}
+  .import-summary-table .import-err-row td{background:rgba(212,83,92,.06);}
+  .import-summary-table .imp-ok{color:var(--green);font-weight:600;text-align:center;}
+  .import-summary-table .imp-err{color:var(--red);font-weight:600;text-align:center;}
+
+  /* ── Tag / Unit / Div Pills ── */
+  .tag-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;}
+  .tag-pill{padding:3px 9px;border-radius:20px;font-size:.71rem;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;transition:all .15s;}
+  .tag-pill:hover{border-color:var(--accent);color:var(--accent);}
+  .unit-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:3px;font-size:.72rem;font-family:'IBM Plex Mono',monospace;font-weight:500;background:var(--bg);border:1.5px solid var(--border);color:var(--text-muted);cursor:pointer;transition:all .15s;}
+  .div-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.72rem;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;transition:all .15s;}
+  .div-pill:hover{border-color:var(--accent);color:var(--accent);}
+  .sug-result-chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:.67rem;font-family:'IBM Plex Mono',monospace;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);}
+  .sug-space-info{background:var(--bg);border:1.5px solid var(--border);border-radius:4px;padding:9px 11px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--text-muted);margin-bottom:11px;line-height:1.7;}
+
+  /* ── Import Step Indicator ── */
+  .step-indicator{display:flex;margin-bottom:14px;}
+  .step{flex:1;padding:6px 8px;font-size:.68rem;font-family:'IBM Plex Mono',monospace;font-weight:500;border-bottom:2px solid var(--border);color:var(--text-muted);display:flex;align-items:center;gap:4px;}
+  .step.active{border-bottom-color:var(--accent);color:var(--accent);}
+  .step.done{border-bottom-color:var(--green);color:var(--green);}
+  .step-num{width:15px;height:15px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:.58rem;flex-shrink:0;}
+
+  /* ── Import Tab Buttons ── */
+  .tab{padding:5px 12px;border-radius:3px;font-size:.77rem;cursor:pointer;font-weight:500;color:var(--text-muted);border:1.5px solid transparent;background:transparent;}
+
+  /* ── Color Picker ── */
+  .color-picker-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:8px;}
+  .cp-dot{position:relative;width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .1s,border-color .1s;padding:0;flex-shrink:0;}
+  .cp-dot:hover{transform:scale(1.18);border-color:rgba(255,255,255,.6);}
+  .cp-dot.selected{border-color:white;box-shadow:0 0 0 2px rgba(0,0,0,.4);}
+  .cp-dot.in-use{opacity:.38;}
+  .cp-dot.in-use:hover{opacity:.6;}
+  .piece-color-btn{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.3);cursor:pointer;flex-shrink:0;transition:transform .12s;background:var(--accent);}
+  .piece-color-btn:hover{transform:scale(1.15);}
+  .color-picker-popup{background:var(--bg-panel);border:1.5px solid var(--border);border-radius:6px;box-shadow:var(--shadow);z-index:200;}
+  .group-color-btn{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.2);cursor:pointer;flex-shrink:0;transition:transform .12s;}
+  .group-color-btn:hover{transform:scale(1.18);}
+
+  /* ── Responsive ── */
+  @media(max-width:767px){
+    #panelResizeHandle{display:none;}
+    #panelLeft{width:100%!important;min-width:unset!important;max-height:50vh;border-right:none;border-bottom:1.5px solid var(--border);}
+    main{flex-direction:column;overflow-y:auto;}
+    #dlJpg,#dlPdf{display:none;}
+  }
+  @media(max-width:380px){
+    .full-label{display:none;}
+    .short-label{display:inline!important;}
+  }
+
+</style>
+
+</head>
+<body class="font-sans bg-[var(--bg)] text-[var(--text)] flex flex-col h-[100dvh] overflow-hidden transition-colors duration-200">
+
+<!-- ── HEADER ── -->
+<header class="bg-[var(--header-bg)] text-[var(--header-text)] px-6 h-[52px] flex items-center justify-between flex-shrink-0 border-b-[3px] border-[var(--accent)]">
+  <div class="font-mono font-semibold text-[1.1rem] tracking-tight text-[var(--header-text)] flex-shrink-0">
+    JNV<span class="text-[var(--accent)]">Cut</span>
+    <span class="font-light opacity-50 text-[0.74rem] ml-2">v1.3</span>
+  </div>
+  <div class="flex gap-1.5 items-center">
+    <div class="w-px h-[18px] bg-white/15 flex-shrink-0"></div>
+    <button class="btn btn-ghost btn-icon" id="themeBtn" onclick="toggleDarkMode()" title="Modo claro/oscuro">
+      <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;"><path fill-rule="evenodd" d="M7.455 2.004a.75.75 0 0 1 .26.77 7 7 0 0 0 9.958 7.967.75.75 0 0 1 1.067.853A8.5 8.5 0 1 1 6.647 1.921a.75.75 0 0 1 .808.083Z" clip-rule="evenodd"/></svg>
+      <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;display:none;"><path d="M10 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 2ZM10 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 15ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM15.657 5.404a.75.75 0 1 0-1.06-1.06l-1.061 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM6.464 14.596a.75.75 0 1 0-1.06-1.06l-1.06 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM18 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 18 10ZM5 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 5 10ZM14.596 15.657a.75.75 0 0 0 1.06-1.06l-1.06-1.061a.75.75 0 1 0-1.06 1.06l1.06 1.061ZM5.404 6.464a.75.75 0 0 0 1.06-1.06L5.404 4.343a.75.75 0 1 0-1.06 1.06l1.06 1.061Z"/></svg>
+    </button>
+    <button class="btn btn-accent" onclick="runOptimization()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.344-5.891a1.5 1.5 0 0 0 0-2.538L6.3 2.84Z"/></svg>
+      Optimizar
+    </button>
+  </div>
+</header>
+
+<main class="flex flex-col md:flex-row flex-1 overflow-hidden">
+  <!-- ── PANEL IZQUIERDO ── -->
+  <div id="panelLeft" class="flex flex-col overflow-hidden flex-shrink-0 bg-[var(--bg-panel)] border-b-[1.5px] border-[var(--border)] md:border-b-0 md:border-r-[1.5px] h-[45%] md:h-auto w-full md:w-1/2 lg:w-1/3 border-r-orange-500/70">
+    <!-- Proyectos -->
+    <div class="flex gap-1 items-center px-2 py-1.5 flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg);">
+      <button class="btn btn-outline btn-sm" onclick="newProject()" title="Nuevo proyecto">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;flex-shrink:0;"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/></svg>
+        Nuevo
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="loadProject()" title="Importar proyecto (.jnvcut)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;flex-shrink:0;"><path d="M9.25 13.25a.75.75 0 0 0 1.5 0V4.636l2.955 3.129a.75.75 0 0 0 1.09-1.03l-4.25-4.5a.75.75 0 0 0-1.09 0l-4.25 4.5a.75.75 1 0 1.09 1.03L9.25 4.636v8.614Z"/><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>
+        Importar
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="saveProject()" title="Exportar proyecto (.jnvcut)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;flex-shrink:0;"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z"/><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>
+        Exportar
+      </button>
+    </div>
+    <!-- Nombre del proyecto -->
+    <div class="px-3.5 py-[8px] flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg);">
+      <input type="text" id="projectNameInput" placeholder="Nombre del proyecto..." maxlength="30" oninput="onProjectNameInput(this)"
+        style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;" autocomplete="off">
+    </div>
+
+    <!-- Material config (accordion) -->
+    <div class="px-3.5 py-[9px] flex items-center justify-between flex-shrink-0 cursor-pointer select-none" style="border-bottom:1px solid var(--border);background:var(--bg);" onclick="toggleMaterial()">
+      <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase" style="color:var(--text-muted);">Material</span>
+      <span class="chevron open" id="materialChevron" style="color:var(--text-muted);">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M14.77 12.79a.75.75 0 0 1-1.06-.02L10 8.832 6.29 12.77a.75.75 0 1 1-1.08-1.04l4.25-4.5a.75.75 0 0 1 1.08 0l4.25 4.5a.75.75 0 0 1-.02 1.06Z" clip-rule="evenodd"/></svg>
+      </span>
+    </div>
+    <div id="materialBody" class="px-3.5 py-3 flex-shrink-0" style="border-bottom:1px solid var(--border);">
+      <div class="mb-2">
+        <div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Tipo de plancha</div>
+        <select id="matPreset" onchange="applyPreset()"><option value="">— Seleccionar —</option></select>
+      </div>
+      <div class="grid grid-cols-3 gap-[7px] mb-2">
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Largo (mm)</div><input type="number" id="matLength" readonly placeholder="—"></div>
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Ancho (mm)</div><input type="number" id="matWidth"  readonly placeholder="—"></div>
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Espesor (mm)</div><input type="number" id="matThick" readonly placeholder="—"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-[7px]">
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Kerf / sierra (mm)</div><input type="number" id="kerf" value="3" min="0" max="20" step="0.5"></div>
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Unidad de visualización</div>
+          <select id="unit">
+            <option value="mm">mm</option>
+            <option value="cm" selected>cm</option>
+            <option value="m">m</option>
+            <option value="in">in</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalle (accordion wrapping tabs + lists + stats) -->
+    <div class="px-3.5 py-[9px] flex items-center justify-between flex-shrink-0 cursor-pointer select-none" style="border-bottom:1px solid var(--border);background:var(--bg);" onclick="toggleDetail()">
+      <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase" style="color:var(--text-muted);">Detalle</span>
+      <span class="chevron open" id="detailChevron" style="color:var(--text-muted);">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M14.77 12.79a.75.75 0 0 1-1.06-.02L10 8.832 6.29 12.77a.75.75 0 1 1-1.08-1.04l4.25-4.5a.75.75 0 0 1 1.08 0l4.25 4.5a.75.75 0 0 1-.02 1.06Z" clip-rule="evenodd"/></svg>
+      </span>
+    </div>
+    <div id="detailBody" class="flex flex-col flex-1 overflow-hidden min-h-0">
+
+      <!-- Tabs -->
+      <div class="flex flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg);">
+        <button class="left-tab flex-1 py-2 px-2.5 font-mono text-[0.67rem] font-semibold tracking-[0.05em] uppercase border-none bg-transparent cursor-pointer border-b-2 border-transparent transition-all" id="tabPiezas" onclick="setLeftTab('piezas')">
+          Piezas (<span id="pieceCount">0</span>)
+        </button>
+        <button class="left-tab flex-1 py-2 px-2.5 font-mono text-[0.67rem] font-semibold tracking-[0.05em] uppercase border-none bg-transparent cursor-pointer border-b-2 border-transparent transition-all" id="tabGrupos" onclick="setLeftTab('grupos')">Grupos</button>
+      </div>
+
+      <!-- ── TAB PIEZAS ── -->
+      <div id="piezasContent" style="display:contents;">
+        <div class="px-3.5 py-[7px] flex items-center gap-[5px] flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg-panel);">
+          <button class="btn btn-outline btn-sm" onclick="openImport()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M1 11.27c0-.897.63-1.673 1.516-1.838l.758-.143.26-.872a5.093 5.093 0 0 1 9.832 0l.26.872.758.143A1.872 1.872 0 0 1 15 11.27V17a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-5.73Zm7.545 1.997-1.22-1.22a.75.75 0 1 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0l2.5-2.5a.75.75 0 1 0-1.06-1.06l-1.22 1.22V11a.75.75 0 0 0-1.5 0v2.27Z" clip-rule="evenodd"/></svg>
+            Importar
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="openAddModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/></svg>
+            Agregar
+          </button>
+          <button class="btn btn-success btn-sm" onclick="exportPieceList()" title="Exportar lista a Excel">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z"/><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>
+            Exportar
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="confirmClearAll()" title="Limpiar todo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto py-2.5 px-3.5 scroll-thin" id="pieceList">
+          <div class="text-center py-6 font-mono text-[0.78rem]" style="color:var(--text-muted);">Sin piezas.</div>
+        </div>
+      </div>
+
+      <!-- ── TAB GRUPOS ── -->
+      <div id="gruposContent" style="display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
+        <div class="px-3.5 py-[7px] flex items-center gap-[5px] flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg-panel);">
+          <input type="text" id="newGroupInput" placeholder="Nombre del grupo..." style="flex:1;min-width:0;" onkeydown="if(event.key==='Enter')addGroupFromInput()">
+          <button class="btn btn-accent btn-sm" onclick="addGroupFromInput()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/></svg>
+            Crear
+          </button>
+        </div>
+        <div id="gruposList" class="scroll-thin flex-1 overflow-y-auto" style="padding:10px 0;"></div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="grid grid-cols-3 gap-px flex-shrink-0" style="background:var(--border);border-top:1.5px solid var(--border);">
+        <div class="py-2 px-2.5 text-center" style="background:var(--bg-panel);">
+          <div class="font-mono text-base font-semibold" style="color:var(--text);" id="statUse">—</div>
+          <div class="text-[0.62rem] uppercase tracking-[0.05em] mt-px" style="color:var(--text-muted);">% Uso</div>
+        </div>
+        <div class="py-2 px-2.5 text-center" style="background:var(--bg-panel);">
+          <div class="font-mono text-base font-semibold" style="color:var(--text);" id="statWaste">—</div>
+          <div class="text-[0.62rem] uppercase tracking-[0.05em] mt-px" style="color:var(--text-muted);">% Sobrante</div>
+        </div>
+        <div class="py-2 px-2.5 text-center" style="background:var(--bg-panel);">
+          <div class="font-mono text-base font-semibold" style="color:var(--text);" id="statSheets">—</div>
+          <div class="text-[0.62rem] uppercase tracking-[0.05em] mt-px" style="color:var(--text-muted);">Láminas</div>
+        </div>
+      </div>
+
+    </div><!-- /detailBody -->
+  </div>
+
+  <!-- ── RESIZE HANDLE ── -->
+  <div id="panelResizeHandle" class="w-[5px] flex-shrink-0 cursor-col-resize relative z-10 transition-colors duration-150 hover:bg-[var(--accent)]" style="background:transparent;"></div>
+
+  <!-- ── PANEL DERECHO ── -->
+  <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+    <div class="flex-1 flex flex-col overflow-hidden min-h-0">
+      <!-- Toolbar -->
+      <div class="px-3.5 py-[9px] flex items-center gap-[7px] flex-wrap flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg-panel);">
+        <button class="btn btn-outline btn-icon flex-shrink-0" id="panelToggleBtn" onclick="toggleLeftPanel()" title="Mostrar/ocultar panel">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 0 1 2.75 4h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4.75ZM2 10a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 10Zm0 5.25a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/></svg>
+        </button>
+        <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase flex-shrink-0" style="color:var(--text-muted);">Vista de corte</span>
+        <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
+        <!-- Zoom -->
+        <div class="flex items-center gap-[5px] flex-shrink-0">
+          <span class="text-[0.7rem]" style="color:var(--text-muted);">Zoom:</span>
+          <input type="range" id="zoomSlider" min="20" max="150" value="60" style="width:80px;height:4px;" oninput="applyZoom(this.value)">
+          <span class="text-[0.7rem] font-mono min-w-[28px]" style="color:var(--text-muted);" id="zoomVal">60%</span>
+        </div>
+        <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
+        <!-- Sheet buttons -->
+        <div class="flex items-center gap-[5px] flex-shrink-0">
+          <span class="text-[0.7rem]" style="color:var(--text-muted);">Lámina:</span>
+          <div id="sheetBtns" class="flex gap-[3px] flex-wrap"></div>
+        </div>
+        <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
+        <!-- Fit to width -->
+        <button class="btn btn-outline btn-sm btn-icon" onclick="fitCanvasToWidth()" title="Ajustar al ancho">
+          <svg width="13px" height="13px" viewBox="0 0 24 24" fill="currentColor"  xmlns="http://www.w3.org/2000/svg"><path d="M21.92,11.62a1,1,0,0,0-.21-.33l-2.5-2.5a1,1,0,0,0-1.42,1.42l.8.79H16a1,1,0,0,0,0,2h2.59l-.8.79a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l2.5-2.5a1,1,0,0,0,.21-.33A1,1,0,0,0,21.92,11.62ZM8,11H5.41l.8-.79A1,1,0,0,0,4.79,8.79l-2.5,2.5a1,1,0,0,0-.21.33,1,1,0,0,0,0,.76,1,1,0,0,0,.21.33l2.5,2.5a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L5.41,13H8a1,1,0,0,0,0-2Zm4-4a1,1,0,0,0-1,1v8a1,1,0,0,0,2,0V8A1,1,0,0,0,12,7Z"/></svg>
+          Centrar
+        </button>
+        <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
+        <!-- Measure -->
+        <button class="btn btn-outline btn-sm" id="measureBtn" onclick="toggleMeasure()" title="Herramienta de medición">
+            <svg width="13px" height="13px" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-ruler"><path d='M14.95 7.879l-.707-.707a1 1 0 0 1 1.414-1.415l.707.707 1.414-1.414-2.828-2.828L2.222 14.95l2.828 2.828 1.414-1.414L5.05 14.95a1 1 0 0 1 1.414-1.414L7.88 14.95l1.414-1.414-.707-.708A1 1 0 0 1 10 11.414l.707.707 1.414-1.414-1.414-1.414a1 1 0 0 1 1.414-1.414l1.415 1.414 1.414-1.414zM.808 13.536L13.536.808a2 2 0 0 1 2.828 0l2.828 2.828a2 2 0 0 1 0 2.828L6.464 19.192a2 2 0 0 1-2.828 0L.808 16.364a2 2 0 0 1 0-2.828z'/></svg>
+            Medir
+        </button>
+        <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
+        <!-- Color mode -->
+        <div class="flex flex-col gap-[3px] flex-shrink-0">
+          <span class="text-[0.6rem] font-mono uppercase tracking-[0.05em]" style="color:var(--text-muted);">Ver por color</span>
+          <div class="flex gap-[3px]">
+            <button class="btn btn-outline btn-sm active" id="cmPiece" onclick="setColorMode('piece')" title="Colorear por pieza">Pieza</button>
+            <button class="btn btn-outline btn-sm" id="cmGroup" onclick="setColorMode('group')" title="Colorear por grupo">Grupo</button>
+          </div>
+        </div>
+        <!-- Usage bar -->
+        <div id="usageBar" class="flex-1 flex items-center gap-[7px] min-w-[80px]" style="display:none;">
+          <div class="flex-1 h-[4px] rounded-full overflow-hidden min-w-[40px]" style="background:var(--border);">
+            <div id="usageFill" class="h-full rounded-full transition-all duration-500" style="width:0%;"></div>
+          </div>
+          <span id="usageLabel" class="text-[0.69rem] font-mono whitespace-nowrap" style="color:var(--text-muted);"></span>
+        </div>
+        <!-- Export -->
+        <div class="ml-auto flex items-center gap-[5px] flex-shrink-0">
+          <span class="text-[0.68rem]" style="color:var(--text-muted);">Exportar:</span>
+          <button class="btn btn-outline btn-sm" id="dlJpg" onclick="downloadImage('jpg')">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z"/><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>
+            JPG
+          </button>
+          <button class="btn btn-outline btn-sm" id="dlPdf" onclick="downloadPDF()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm2.25 8.5a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 3a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" clip-rule="evenodd"/></svg>
+            PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="flex-1 overflow-auto p-4 flex items-start justify-center" id="canvasArea" style="justify-content:safe center;">
+        <div class="flex-1 flex flex-col items-center justify-center gap-3" id="emptyState" style="color:var(--text-muted);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.8" style="width:56px;height:56px;opacity:0.2;"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="2" y1="15" x2="22" y2="15"/><line x1="9" y1="2" x2="9" y2="22"/><line x1="15" y1="2" x2="15" y2="22"/></svg>
+          <div class="text-[0.82rem] font-mono text-center">Selecciona una plancha, agrega piezas<br>y presiona Optimizar</div>
+        </div>
+        <div id="canvasInner" style="display:none;">
+          <div class="relative inline-block">
+            <canvas id="cutCanvas"></canvas>
+            <canvas id="measureCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PANEL SOBRANTES ── -->
+    <div id="remnantPanel" class="flex-shrink-0 flex flex-col" style="border-top:1.5px solid var(--border);background:var(--bg-panel);">
+      <div class="px-3.5 py-[9px] flex items-center justify-between cursor-pointer select-none" style="background:var(--bg);border-bottom:1px solid var(--border);" onclick="toggleRemnant()">
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase" style="color:var(--text-muted);">Análisis de sobrantes</span>
+          <span id="remnantBadge" class="text-[0.67rem] font-mono" style="color:var(--text-muted);"></span>
+        </div>
+        <span class="chevron" id="remnantChevron" style="color:var(--text-muted);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M14.77 12.79a.75.75 0 0 1-1.06-.02L10 8.832 6.29 12.77a.75.75 0 1 1-1.08-1.04l4.25-4.5a.75.75 0 0 1 1.08 0l4.25 4.5a.75.75 0 0 1-.02 1.06Z" clip-rule="evenodd"/></svg>
+        </span>
+      </div>
+      <div id="remnantBody" class="overflow-y-auto py-3 px-3.5 scroll-thin" style="max-height:280px;display:none;"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ── MODAL: IMPORTAR ── -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal-drag-handle rounded-lg p-[22px] relative" style="background:var(--bg-panel);color:var(--text);width:680px;max-width:96vw;max-height:92vh;overflow-y:auto;border-top:3px solid var(--accent);box-shadow:var(--shadow);">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-[0.95rem] font-semibold m-0" style="color:var(--text);">Importar piezas</h3>
+      <button onclick="closeModal('import')" class="flex items-center justify-center w-7 h-7 rounded hover:bg-[var(--bg-input)] transition-colors" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/></svg>
+      </button>
+    </div>
+    <div class="step-indicator">
+      <div class="step active" id="step1-ind"><div class="step-num">1</div> Pegar datos</div>
+      <div class="step" id="step2-ind"><div class="step-num">2</div> Mapear columnas</div>
+      <div class="step" id="step3-ind"><div class="step-num">3</div> Unidad</div>
+      <div class="step" id="step4-ind"><div class="step-num">4</div> Confirmar</div>
+    </div>
+    <div id="imp-step1">
+      <div class="flex gap-[5px] mb-[9px]">
+        <button class="tab active" id="tabExcelBtn" onclick="setImportMode('excel')">Desde Excel / TSV</button>
+        <button class="tab" id="tabCsvBtn" onclick="setImportMode('csv')">Lista CSV</button>
+      </div>
+      <div id="imp-hint-excel" class="text-[0.71rem] font-mono mb-[5px]" style="color:var(--text-muted);">Copia celdas de Excel (Ctrl+C) y pégalas aquí.</div>
+      <div id="imp-hint-csv"  class="text-[0.71rem] font-mono mb-[5px]" style="display:none;color:var(--text-muted);">Una pieza por línea, comas. Ej: <span style="color:var(--text)">Dormitorio,Puerta,Cocina,80,210,2</span></div>
+      <textarea id="importRaw" rows="7" placeholder="Pega tus datos aquí..." oninput="detectColumns()"></textarea>
+      <div id="colPreviewArea" class="mt-[9px]" style="display:none;">
+        <div class="text-[0.66rem] font-medium uppercase tracking-[0.05em] mb-[3px]" style="color:var(--text-muted);">Vista previa — primeras 5 filas</div>
+        <div class="overflow-x-auto"><table class="preview-table" id="colPreviewTable"></table></div>
+        <div id="colCountMsg" class="text-[0.69rem] font-mono mt-1" style="color:var(--text-muted);"></div>
+      </div>
+      <div class="flex justify-end mt-3">
+        <button class="btn btn-accent" onclick="goStep(2)">
+          Siguiente
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="imp-step2" style="display:none;">
+      <div class="text-[0.77rem] mb-[9px]" style="color:var(--text-muted);">Orden por defecto: <strong>Grupo | Nombre | Etiqueta | Largo | Ancho | Cantidad</strong>. Ajusta si es diferente.</div>
+      <div class="map-wrap"><table class="map-table" id="mapTable"></table></div>
+      <div class="flex gap-[7px] justify-between mt-3">
+        <button class="btn btn-outline" onclick="goStep(1)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
+          Atrás
+        </button>
+        <button class="btn btn-accent" onclick="goStep(3)">
+          Siguiente
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="imp-step3" style="display:none;">
+      <div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[7px]" style="color:var(--text-muted);">Unidad de medida de los datos importados</div>
+      <div class="flex gap-[5px] flex-wrap">
+        <button class="unit-badge" id="ubtn-mm" onclick="setImportUnit('mm')">mm</button>
+        <button class="unit-badge active" id="ubtn-cm" onclick="setImportUnit('cm')">cm</button>
+        <button class="unit-badge" id="ubtn-m"  onclick="setImportUnit('m')">m</button>
+        <button class="unit-badge" id="ubtn-in" onclick="setImportUnit('in')">in</button>
+      </div>
+      <div id="unitConvMsg" class="text-[0.71rem] font-mono mt-[9px] min-h-[1.2em]" style="color:var(--text-muted);"></div>
+      <div class="flex gap-[7px] justify-between mt-[18px]">
+        <button class="btn btn-outline" onclick="goStep(2)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
+          Atrás
+        </button>
+        <button class="btn btn-accent" onclick="goStep(4)">
+          Ver resumen
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="imp-step4" style="display:none;">
+      <div id="importMergeBox" class="rounded mb-3 p-[10px_12px]" style="display:none;background:rgba(232,129,42,.08);border:1.5px solid var(--amber);">
+        <div class="text-[0.78rem] font-medium mb-2" style="color:var(--amber);">Ya tienes <span id="existingCount"></span> piezas cargadas. ¿Qué deseas hacer?</div>
+        <div class="flex gap-[7px] flex-wrap">
+          <label class="flex items-center gap-1.5 cursor-pointer text-[0.77rem]" style="color:var(--text);"><input type="radio" name="importAction" value="merge" checked id="rdMerge"> Agregar a las existentes</label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-[0.77rem]" style="color:var(--red);"><input type="radio" name="importAction" value="replace" id="rdReplace"> Reemplazar todo</label>
+        </div>
+      </div>
+      <div class="text-[0.78rem] mb-[7px] font-medium" style="color:var(--text);">Resumen de importación</div>
+      <div id="importSummary" class="scroll-thin" style="max-height:240px;overflow-y:auto;overflow-x:auto;"></div>
+      <div id="importWarnBox" class="rounded mt-[7px] p-[7px_10px] text-[0.72rem] font-mono" style="display:none;background:rgba(212,83,92,.1);border:1.5px solid var(--red);color:var(--red);"></div>
+      <div class="flex gap-[7px] justify-between mt-[14px]">
+        <button class="btn btn-outline" onclick="goStep(3)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
+          Atrás
+        </button>
+        <button class="btn btn-accent" id="confirmImportBtn" onclick="confirmImport()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>
+          Importar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: AGREGAR / EDITAR PIEZA ── -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-drag-handle rounded-lg p-[22px] relative" style="background:var(--bg-panel);color:var(--text);width:480px;max-width:94vw;border-top:3px solid var(--accent);box-shadow:var(--shadow);">
+    <div class="flex items-center justify-between mb-[14px]">
+      <h3 id="addModalTitle" class="text-[0.95rem] font-semibold m-0" style="color:var(--text);">Agregar pieza</h3>
+      <button onclick="closeModal('add')" class="flex items-center justify-center w-7 h-7 rounded hover:bg-[var(--bg-input)] transition-colors" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/></svg>
+      </button>
+    </div>
+    <div class="flex flex-col gap-2.5">
+      <div>
+        <div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Nombre</div>
+        <input type="text" id="newName" placeholder="Ej: Lateral izquierdo">
+      </div>
+      <div class="grid grid-cols-2 gap-[7px]">
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Largo (mm)</div><input type="number" id="newLength" placeholder="600" min="1"></div>
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Ancho (mm)</div><input type="number" id="newWidth"  placeholder="400" min="1"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-[7px]">
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Cantidad</div><input type="number" id="newQty" placeholder="1" value="1" min="1"></div>
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Etiqueta</div><input type="text" id="newTag" placeholder="Ej: Techo, Cajón..."></div>
+      </div>
+      <div>
+        <div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[5px]" style="color:var(--text-muted);">Grupo</div>
+        <div class="tag-pills" id="groupBtns"></div>
+        <input type="hidden" id="newGroupVal" value="">
+      </div>
+      <div>
+        <div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[5px]" style="color:var(--text-muted);">Color</div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="pieceColorBtn" class="piece-color-btn" onclick="togglePieceColorPicker()" title="Seleccionar color"></button>
+          <span class="text-[0.7rem] font-mono" id="pieceColorHex" style="color:var(--text-muted);">#888888</span>
+        </div>
+        <div id="pieceColorPicker" class="color-picker-popup mt-1" style="display:none;"></div>
+        <input type="hidden" id="newPieceColor" value="#888888">
+      </div>
+    </div>
+    <input type="hidden" id="editingIdx" value="-1">
+    <div class="flex gap-[7px] mt-[18px] justify-end">
+      <button class="btn btn-outline" onclick="closeModal('add')">Cancelar</button>
+      <button class="btn btn-accent" id="addModalBtn" onclick="savePiece()">Agregar pieza</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: PIEZA SUGERIDA ── -->
+<div class="modal-overlay" id="addSugModal">
+  <div class="modal-drag-handle rounded-lg p-[22px] relative" style="background:var(--bg-panel);color:var(--text);width:480px;max-width:95vw;border-top:3px solid var(--accent);box-shadow:var(--shadow);">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-[0.95rem] font-semibold m-0" style="color:var(--text);">Agregar pieza sugerida</h3>
+      <button onclick="closeModal('addSug')" class="flex items-center justify-center w-7 h-7 rounded hover:bg-[var(--bg-input)] transition-colors" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/></svg>
+      </button>
+    </div>
+    <div id="sugSpaceInfo" class="sug-space-info"></div>
+    <div class="flex flex-col gap-2.5">
+      <div>
+        <div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Nombre</div>
+        <input type="text" id="sugName" placeholder="Ej: Repisa sobrante" oninput="updateSugPreview()">
+      </div>
+      <div class="grid grid-cols-2 gap-[7px]">
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Largo (mm)</div><input type="number" id="sugLength" placeholder="600" min="1" oninput="updateSugPreview()"></div>
+        <div><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Ancho (mm)</div><input type="number" id="sugWidth"  placeholder="400" min="1" oninput="updateSugPreview()"></div>
+      </div>
+      <div>
+        <div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[6px]" style="color:var(--text-muted);">Dividir en cortes</div>
+        <div class="flex gap-[5px] flex-wrap mb-2">
+          <button class="div-pill active" id="divNone"  onclick="setSugDiv('none')">Sin cortes</button>
+          <button class="div-pill"        id="divVert"  onclick="setSugDiv('vert')">Vertical</button>
+          <button class="div-pill"        id="divHoriz" onclick="setSugDiv('horiz')">Horizontal</button>
+          <button class="div-pill"        id="divGrid"  onclick="setSugDiv('grid')">Cuadrícula</button>
+        </div>
+        <div id="divInputs" class="flex-row gap-2.5" style="display:none;">
+          <div id="divColWrap" style="display:none;flex:1;"><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Columnas</div><input type="number" id="sugCols" value="2" min="2" max="20" oninput="updateSugPreview()"></div>
+          <div id="divRowWrap" style="display:none;flex:1;"><div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[3px]" style="color:var(--text-muted);">Filas</div><input type="number" id="sugRows" value="2" min="2" max="20" oninput="updateSugPreview()"></div>
+        </div>
+      </div>
+      <div>
+        <div class="text-[0.66rem] font-medium uppercase tracking-[0.04em] mb-[5px]" style="color:var(--text-muted);">Vista previa</div>
+        <canvas id="sugPreviewCanvas" height="160" style="display:block;max-width:100%;background:var(--bg-input);border:1.5px solid var(--border);border-radius:4px;"></canvas>
+      </div>
+      <div id="sugResultList" class="scroll-thin flex flex-wrap gap-1 text-[0.73rem]" style="max-height:60px;overflow-y:auto;"></div>
+    </div>
+    <input type="hidden" id="sugSheetIdx" value="0">
+    <input type="hidden" id="sugRemW"     value="0">
+    <input type="hidden" id="sugRemH"     value="0">
+    <div id="sugFitWarning" class="rounded mt-2.5 p-[9px_11px] text-[0.72rem] font-mono leading-relaxed" style="display:none;background:rgba(232,129,42,.12);border:1.5px solid var(--amber);color:var(--amber);"></div>
+    <div class="flex gap-[7px] mt-[18px] justify-end">
+      <button class="btn btn-outline" onclick="closeModal('addSug')">Cancelar</button>
+      <button class="btn btn-accent" onclick="confirmAddSuggestion()">Agregar a plancha</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: CONFIRMACIÓN ── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="rounded-lg p-[22px] relative" style="background:var(--bg-panel);color:var(--text);width:380px;max-width:94vw;border-top:3px solid var(--amber);box-shadow:var(--shadow);">
+    <h3 id="confirmTitle" class="text-[0.95rem] font-semibold mb-2.5" style="color:var(--text);"></h3>
+    <p  id="confirmMsg"   class="text-[0.82rem] mb-[18px] leading-relaxed" style="color:var(--text-muted);"></p>
+    <div class="flex gap-[7px] justify-end">
+      <button class="btn btn-outline" onclick="closeModal('confirm')" id="confirmCancelBtn">Cancelar</button>
+      <button class="btn btn-accent"  id="confirmOkBtn">Sí, continuar</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="projectFileInput" accept=".jnvcut,.json" style="display:none" onchange="loadProjectFile(event)">
+<div class="notification" id="notification"></div>
+<div id="measureTooltip">
+  <span id="measureTooltipText"></span>
+  <button class="tooltip-close" onclick="closeMeasureTooltip()" title="Cerrar">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/></svg>
+  </button>
+</div>
+
+<!-- ── Scripts ── -->
+<script src="data/materials.js"></script>
+<script src="js/state.js"></script>
+<script src="js/pieces.js"></script>
+<script src="js/import.js"></script>
+<script src="js/optimizer.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/remnants.js"></script>
+<script src="js/measure.js"></script>
+<script src="js/project.js"></script>
+
+</body>
+</html>
