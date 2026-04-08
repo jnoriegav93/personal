@@ -7,8 +7,9 @@ let groupCollapsed = {};   // { groupName: boolean }
 let groupColors  = {};     // { groupName: '#hex' }
 let colorMode    = 'piece';// 'piece' | 'group'
 let projectName  = '';
-let materialOpen = true;   // accordion state
-let detailOpen   = true;   // accordion state
+let materialOpen     = true;   // accordion state
+let detailOpen       = true;   // accordion state
+let herramientasOpen = true;   // accordion state
 
 // ── Paleta 40 colores (8 × 5) ─────────────────────────────────────
 const COLORS = [

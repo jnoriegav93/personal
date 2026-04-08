@@ -56,7 +56,8 @@ function runOptimization() {
     document.getElementById('usageFill').style.background =
       usePct > 70 ? 'var(--green)' : usePct > 40 ? 'var(--amber)' : 'var(--red)';
     document.getElementById('usageLabel').textContent =
-      `${usePct}% uso · ${sheets.length} lámina${sheets.length > 1 ? 's' : ''}`;
+      `${usePct}% usado`;
+      // `${usePct}% uso · ${sheets.length} lámina${sheets.length > 1 ? 's' : ''}`;
 
     document.getElementById('emptyState').style.display  = 'none';
     document.getElementById('canvasInner').style.display = '';

@@ -1,34 +1,150 @@
-// ── Exportar lista a Excel ────────────────────────────────────────
-function exportPieceList() {
+// ── Exportar lista de materiales (.xlsx con estilos) ──────────────
+async function exportPieceList() {
   if (!pieces.length) { notify('No hay piezas para exportar'); return; }
 
-  const rows = [['Grupo', 'Nombre', 'Etiqueta', 'Largo (mm)', 'Ancho (mm)', 'Cantidad']];
-  pieces.forEach(p => {
-    rows.push([
-      p.group  || 'Sin grupo',
-      p.name   || '',
-      p.tag    || '',
-      +(p.length).toFixed(2),
-      +(p.width).toFixed(2),
-      p.qty || 1,
-    ]);
-  });
+  const sel        = document.getElementById('matPreset');
+  const material   = sel.options[sel.selectedIndex]?.text || '—';
+  const kerf       = document.getElementById('kerf')?.value || '—';
+  const u          = unitLabel();
+  const projName   = (projectName || 'Proyecto').trim();
+  const totalUnits = pieces.reduce((s, p) => s + (p.qty || 1), 0);
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
+  // Paleta (ARGB sin #)
+  const C = {
+    bg:     'FF1A1916',
+    panel:  'FF242220',
+    input:  'FF2E2B28',
+    border: 'FF3A3733',
+    text:   'FFF0EDE8',
+    muted:  'FF8A8780',
+    accent: 'FFE84B1C',
+    white:  'FFFFFFFF',
+    header: 'FF0F0E0C',
+  };
 
-  // Ancho de columnas
-  ws['!cols'] = [
-    { wch: 18 }, { wch: 28 }, { wch: 16 },
-    { wch: 13 }, { wch: 13 }, { wch: 10 },
+  const fill  = argb => ({ type: 'pattern', pattern: 'solid', fgColor: { argb } });
+  const font  = (argb, opts = {}) => ({ color: { argb }, name: 'Calibri', size: 10, ...opts });
+  const toArgb = hex => 'FF' + hex.replace('#', '').toUpperCase();
+
+  // Borde fino en un color
+  const thinBorder = argb => ({ style: 'thin', color: { argb } });
+  const bottomBorder = argb => ({ bottom: thinBorder(argb) });
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'JNVCut';
+  wb.created = new Date();
+
+  const ws = wb.addWorksheet('Materiales');
+  ws.columns = [
+    { width: 3.5 },  // A – dot de color
+    { width: 30 },   // B – Nombre
+    { width: 30 },   // C – Etiqueta
+    { width: 13 },   // D – Largo
+    { width: 13 },   // E – Ancho
+    { width: 8 },    // F – Cant.
   ];
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Piezas');
+  // ── Bloque de info ──────────────────────────────────────────────
+  const infoData = [
+    ['App',              'JNVCut — Optimizador de Cortes'],
+    ['Proyecto',         projName],
+    ['Material / Plancha', material],
+    ['Kerf / Sierra',   kerf + ' mm'],
+  ];
+  infoData.forEach(([label, value]) => {
+    const row = ws.addRow(['', label, value, '', '', '']);
+    row.height = 17;
+    row.eachCell(cell => { cell.fill = fill(C.panel); });
+    row.getCell(2).font = font(C.muted, { size: 9 });
+    row.getCell(3).font = font(C.text,  { bold: true, size: 10 });
+  });
 
-  const sel  = document.getElementById('matPreset');
-  const name = (sel.options[sel.selectedIndex]?.text || 'cutopt').replace(/[^a-z0-9]/gi, '_').slice(0, 30);
-  XLSX.writeFile(wb, `${name}_piezas.xlsx`);
-  notify(`Lista exportada: ${name}_piezas.xlsx`);
+  // Fila separadora
+  const sep = ws.addRow(['', '', '', '', '', '']);
+  sep.height = 5;
+  sep.eachCell(cell => { cell.fill = fill(C.header); });
+
+  // ── Fila de cabecera ────────────────────────────────────────────
+  const hdrRow = ws.addRow(['', 'Nombre', 'Etiqueta', `Largo (${u})`, `Ancho (${u})`, 'Cant.']);
+  hdrRow.height = 20;
+  hdrRow.eachCell((cell, col) => {
+    cell.fill = fill(C.accent);
+    cell.font = font(C.white, { bold: true, size: 9 });
+    cell.alignment = { vertical: 'middle', horizontal: col >= 4 ? (col === 6 ? 'center' : 'right') : 'left' };
+  });
+
+  // ── Filas de piezas ────────────────────────────────────────────
+  const sinGrupo = pieces.filter(p => !p.group);
+  const byGroup  = {};
+  groups.forEach(g => { byGroup[g] = []; });
+  pieces.forEach(p => { if (p.group && byGroup[p.group] !== undefined) byGroup[p.group].push(p); });
+
+  let rowParity = 0;
+
+  const addPieceRow = p => {
+    const shade = rowParity++ % 2 === 0 ? C.input : C.panel;
+    const largo = parseFloat(fmt(p.length));
+    const ancho = parseFloat(fmt(p.width));
+    const row   = ws.addRow(['', p.name || '—', p.tag || '', largo, ancho, p.qty || 1]);
+    row.height  = 17;
+
+    row.eachCell(cell => {
+      cell.fill = fill(shade);
+      cell.font = font(C.muted, { size: 10 });
+      cell.alignment = { vertical: 'middle' };
+    });
+    // Dot de color en columna A
+    const pColor = toArgb(p.color || '#888888');
+    row.getCell(1).fill = fill(pColor);
+
+    // Nombre en blanco
+    row.getCell(2).font = font(C.text);
+
+    // Números alineados a la derecha
+    row.getCell(4).alignment = { horizontal: 'right', vertical: 'middle' };
+    row.getCell(5).alignment = { horizontal: 'right', vertical: 'middle' };
+
+    // Cantidad en naranja, centrada
+    row.getCell(6).font      = font(C.accent, { bold: true });
+    row.getCell(6).alignment = { horizontal: 'center', vertical: 'middle' };
+  };
+
+  const addGroupHeader = (name, gc) => {
+    const gArgb = toArgb(gc || '#E84B1C');
+    const row   = ws.addRow(['', name.toUpperCase(), '', '', '', '']);
+    row.height  = 15;
+    row.eachCell(cell => {
+      cell.fill   = fill(C.bg);
+      cell.border = bottomBorder(gArgb);
+    });
+    row.getCell(2).font = font(gArgb, { bold: true, size: 8 });
+    rowParity = 0; // reinicia el alternado por grupo
+  };
+
+  if (sinGrupo.length) sinGrupo.forEach(p => addPieceRow(p));
+  groups.forEach(g => {
+    if (byGroup[g]?.length) {
+      addGroupHeader(g, groupColors[g] || '#E84B1C');
+      byGroup[g].forEach(p => addPieceRow(p));
+    }
+  });
+
+  // ── Fila de totales ────────────────────────────────────────────
+  const totRow = ws.addRow(['', `${pieces.length} tipos · ${totalUnits} unidades totales`, '', '', '', '']);
+  totRow.height = 16;
+  totRow.eachCell(cell => { cell.fill = fill(C.header); });
+  totRow.getCell(2).font = font(C.muted, { italic: true, size: 9 });
+
+  // ── Descargar ──────────────────────────────────────────────────
+  const buffer   = await wb.xlsx.writeBuffer();
+  const blob     = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const fileName = projName.replace(/ +/g, '_') + ' - materiales.xlsx';
+  const link     = document.createElement('a');
+  link.href      = URL.createObjectURL(blob);
+  link.download  = fileName;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  notify(`Exportado: ${fileName}`);
 }
 
 // ── Gestión de piezas ─────────────────────────────────────────────

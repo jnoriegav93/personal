@@ -373,7 +373,7 @@ function downloadPDF() {
   const tmp = _renderHighRes(idx);
   if (!tmp) return;
   const imgData = tmp.toDataURL('image/jpeg', 0.96);
-  const html = `<!DOCTYPE html><html><head><title>JNVCut - Lámina ${idx+1}</title>
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>JNVCut - Lámina ${idx+1}</title>
 <style>@page{margin:10mm;size:A4 portrait;}*{margin:0;padding:0;box-sizing:border-box;}body{background:#fff;}img{display:block;width:100%;height:auto;page-break-inside:avoid;}@media print{body{margin:0;}}</style>
 </head><body><img src="${imgData}"><script>window.addEventListener('load',function(){setTimeout(function(){window.print();},300);});<\/script></body></html>`;
   const blob = new Blob([html], { type: 'text/html' });

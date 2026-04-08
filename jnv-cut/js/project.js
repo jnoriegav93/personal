@@ -38,6 +38,20 @@ function toggleMaterial() {
   materialOpen = !materialOpen;
 }
 
+// ── Acordeón Herramientas ─────────────────────────────────────────
+function toggleHerramientas() {
+  const body    = document.getElementById('herramientasBody');
+  const chevron = document.getElementById('herramientasChevron');
+  if (herramientasOpen) {
+    body.style.display = 'none';
+    chevron.classList.remove('open');
+  } else {
+    body.style.display = '';
+    chevron.classList.add('open');
+  }
+  herramientasOpen = !herramientasOpen;
+}
+
 // ── Acordeón Detalle ──────────────────────────────────────────────
 function toggleDetail() {
   const body    = document.getElementById('detailBody');

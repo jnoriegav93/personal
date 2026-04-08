@@ -17,7 +17,7 @@ tailwind.config = {
   }
 }
 </script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
@@ -216,7 +216,6 @@ tailwind.config = {
     #gruposContent{flex:none!important;overflow:visible!important;}
     #gruposList{overflow-y:visible!important;max-height:none!important;}
     #canvasArea{flex:1;min-height:0!important;}
-    #dlJpg,#dlPdf{display:none;}
   }
   @media(max-width:380px){
     .full-label{display:none;}
@@ -265,11 +264,6 @@ tailwind.config = {
         Exportar
       </button>
     </div>
-    <!-- Nombre del proyecto -->
-    <div class="px-3.5 py-[8px] flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg);">
-      <input type="text" id="projectNameInput" placeholder="Nombre del proyecto..." maxlength="30" oninput="onProjectNameInput(this)"
-        style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;" autocomplete="off">
-    </div>
 
     <!-- ── MOBILE TAB BAR (oculto en desktop) ── -->
     <div id="mobileTabBar" class="flex md:hidden flex-shrink-0" style="border-bottom:2px solid var(--border);background:var(--bg);">
@@ -280,6 +274,11 @@ tailwind.config = {
     <!-- ── PROPS CONTENT: Material + Detalle (scrolleable en mobile) ── -->
     <div id="propsContent" class="flex flex-col flex-1 overflow-hidden scroll-thin">
 
+    <!-- Nombre del proyecto -->
+    <div class="px-3.5 py-[8px] flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg);">
+      <input type="text" id="projectNameInput" placeholder="Nombre del proyecto..." maxlength="30" oninput="onProjectNameInput(this)"
+        style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;" autocomplete="off">
+    </div>
     <!-- Material config (accordion) -->
     <div class="px-3.5 py-[9px] flex items-center justify-between flex-shrink-0 cursor-pointer select-none" style="border-bottom:1px solid var(--border);background:var(--bg);" onclick="toggleMaterial()">
       <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase" style="color:var(--text-muted);">Material</span>
@@ -391,14 +390,20 @@ tailwind.config = {
   <div class="flex-1 flex flex-col overflow-hidden min-w-0" id="rightPanel">
     <div class="flex-1 flex flex-col overflow-hidden min-h-0">
       <!-- Vista de corte: título (estilo igual que Material / Detalle / Sobrantes) -->
-      <div class="px-3.5 py-[9px] flex items-center justify-between flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg);">
-        <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase" style="color:var(--text-muted);">Vista de corte</span>
+      <div class="px-3.5 py-auto md:py-[9px] flex items-center gap-[7px] flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg);">
         <button class="btn btn-outline btn-icon hidden md:inline-flex" id="panelToggleBtn" onclick="toggleLeftPanel()" title="Mostrar/ocultar panel">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 0 1 2.75 4h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4.75ZM2 10a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 10Zm0 5.25a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/></svg>
         </button>
+        <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase hidden md:inline" style="color:var(--text-muted);">Vista de corte</span>
       </div>
-      <!-- Controles (zoom, láminas, medir, exportar) -->
-      <div class="px-3.5 py-[9px] flex items-center gap-[7px] flex-wrap flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg-panel);">
+      <!-- Herramientas (zoom, láminas, medir, exportar) -->
+      <div class="px-3.5 py-[9px] flex items-center justify-between flex-shrink-0 cursor-pointer select-none" style="border-bottom:1px solid var(--border);background:var(--bg);" onclick="toggleHerramientas()">
+        <span class="font-mono text-[0.68rem] font-semibold tracking-[0.08em] uppercase" style="color:var(--text-muted);">Herramientas</span>
+        <span class="chevron open" id="herramientasChevron" style="color:var(--text-muted);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M14.77 12.79a.75.75 0 0 1-1.06-.02L10 8.832 6.29 12.77a.75.75 0 1 1-1.08-1.04l4.25-4.5a.75.75 0 0 1 1.08 0l4.25 4.5a.75.75 0 0 1-.02 1.06Z" clip-rule="evenodd"/></svg>
+        </span>
+      </div>
+      <div id="herramientasBody" class="px-3.5 py-[9px] flex items-center gap-[7px] flex-wrap flex-shrink-0" style="border-bottom:1px solid var(--border);background:var(--bg-panel);">
         <!-- Zoom -->
         <div class="flex items-center gap-[5px] flex-shrink-0">
           <span class="text-[0.7rem]" style="color:var(--text-muted);">Zoom:</span>
@@ -409,47 +414,65 @@ tailwind.config = {
         <!-- Sheet buttons -->
         <div class="flex items-center gap-[5px] flex-shrink-0">
           <span class="text-[0.7rem]" style="color:var(--text-muted);">Lámina:</span>
-          <div id="sheetBtns" class="flex gap-[3px] flex-wrap"></div>
+          <div id="sheetBtns" class="flex gap-[3px] flex-wrap">
+            <button class="sheet-btn">0</button>
+          </div>
+        </div>
+        <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
+        <!-- Usage bar -->
+        <div id="usageBar" class="flex items-center gap-[7px] w-[180px]">
+          <div class="flex-1 h-[4px] rounded-full overflow-hidden min-w-[30px]" style="background:var(--border);">
+            <div id="usageFill" class="h-full rounded-full transition-all duration-500" style="width:100%;"></div>
+          </div>
+          <span id="usageLabel" class="text-[0.69rem] font-mono whitespace-nowrap" style="color:var(--text-muted);">0% usado</span>
         </div>
         <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
         <!-- Fit to width -->
-        <button class="btn btn-outline btn-sm btn-icon" onclick="fitCanvasToWidth()" title="Ajustar al ancho">
-          <svg width="13px" height="13px" viewBox="0 0 24 24" fill="currentColor"  xmlns="http://www.w3.org/2000/svg"><path d="M21.92,11.62a1,1,0,0,0-.21-.33l-2.5-2.5a1,1,0,0,0-1.42,1.42l.8.79H16a1,1,0,0,0,0,2h2.59l-.8.79a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l2.5-2.5a1,1,0,0,0,.21-.33A1,1,0,0,0,21.92,11.62ZM8,11H5.41l.8-.79A1,1,0,0,0,4.79,8.79l-2.5,2.5a1,1,0,0,0-.21.33,1,1,0,0,0,0,.76,1,1,0,0,0,.21.33l2.5,2.5a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L5.41,13H8a1,1,0,0,0,0-2Zm4-4a1,1,0,0,0-1,1v8a1,1,0,0,0,2,0V8A1,1,0,0,0,12,7Z"/></svg>
-          Centrar
-        </button>
-        <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
-        <!-- Measure -->
-        <button class="btn btn-outline btn-sm" id="measureBtn" onclick="toggleMeasure()" title="Herramienta de medición">
-            <svg width="13px" height="13px" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-ruler"><path d='M14.95 7.879l-.707-.707a1 1 0 0 1 1.414-1.415l.707.707 1.414-1.414-2.828-2.828L2.222 14.95l2.828 2.828 1.414-1.414L5.05 14.95a1 1 0 0 1 1.414-1.414L7.88 14.95l1.414-1.414-.707-.708A1 1 0 0 1 10 11.414l.707.707 1.414-1.414-1.414-1.414a1 1 0 0 1 1.414-1.414l1.415 1.414 1.414-1.414zM.808 13.536L13.536.808a2 2 0 0 1 2.828 0l2.828 2.828a2 2 0 0 1 0 2.828L6.464 19.192a2 2 0 0 1-2.828 0L.808 16.364a2 2 0 0 1 0-2.828z'/></svg>
-            Medir
-        </button>
+        <div class="flex flex-col gap-[3px] flex-shrink-0">
+          <span class="text-[0.6rem] font-mono uppercase text-center tracking-[0.05em]" style="color:var(--text-muted);">
+            Controles del visor
+          </span>
+        <div class="flex gap-[3px]">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="fitCanvasToWidth()" title="Ajustar al ancho">
+            <svg width="13px" height="13px" viewBox="0 0 24 24" fill="currentColor"  xmlns="http://www.w3.org/2000/svg"><path d="M21.92,11.62a1,1,0,0,0-.21-.33l-2.5-2.5a1,1,0,0,0-1.42,1.42l.8.79H16a1,1,0,0,0,0,2h2.59l-.8.79a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l2.5-2.5a1,1,0,0,0,.21-.33A1,1,0,0,0,21.92,11.62ZM8,11H5.41l.8-.79A1,1,0,0,0,4.79,8.79l-2.5,2.5a1,1,0,0,0-.21.33,1,1,0,0,0,0,.76,1,1,0,0,0,.21.33l2.5,2.5a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L5.41,13H8a1,1,0,0,0,0-2Zm4-4a1,1,0,0,0-1,1v8a1,1,0,0,0,2,0V8A1,1,0,0,0,12,7Z"/></svg>
+            Ajustar
+          </button>
+          <!-- Measure -->
+          <button class="btn btn-outline btn-sm" id="measureBtn" onclick="toggleMeasure()" title="Herramienta de medición">
+              <svg width="13px" height="13px" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-ruler"><path d='M14.95 7.879l-.707-.707a1 1 0 0 1 1.414-1.415l.707.707 1.414-1.414-2.828-2.828L2.222 14.95l2.828 2.828 1.414-1.414L5.05 14.95a1 1 0 0 1 1.414-1.414L7.88 14.95l1.414-1.414-.707-.708A1 1 0 0 1 10 11.414l.707.707 1.414-1.414-1.414-1.414a1 1 0 0 1 1.414-1.414l1.415 1.414 1.414-1.414zM.808 13.536L13.536.808a2 2 0 0 1 2.828 0l2.828 2.828a2 2 0 0 1 0 2.828L6.464 19.192a2 2 0 0 1-2.828 0L.808 16.364a2 2 0 0 1 0-2.828z'/></svg>
+              Medir
+          </button>
+          </div>
+        </div>
         <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
         <!-- Color mode -->
         <div class="flex flex-col gap-[3px] flex-shrink-0">
-          <span class="text-[0.6rem] font-mono uppercase tracking-[0.05em]" style="color:var(--text-muted);">Ver por color</span>
+          <span class="text-[0.6rem] font-mono uppercase text-center tracking-[0.05em]" style="color:var(--text-muted);">
+            Ver por color
+          </span>
           <div class="flex gap-[3px]">
-            <button class="btn btn-outline btn-sm active" id="cmPiece" onclick="setColorMode('piece')" title="Colorear por pieza">Pieza</button>
-            <button class="btn btn-outline btn-sm" id="cmGroup" onclick="setColorMode('group')" title="Colorear por grupo">Grupo</button>
+            <button class="btn btn-outline btn-sm active" id="cmPiece" onclick="setColorMode('piece')" title="Colorear por pieza">
+              Pieza
+            </button>
+            <button class="btn btn-outline btn-sm" id="cmGroup" onclick="setColorMode('group')" title="Colorear por grupo">
+              Grupo
+            </button>
           </div>
         </div>
-        <!-- Usage bar -->
-        <div id="usageBar" class="flex-1 flex items-center gap-[7px] min-w-[80px]" style="display:none;">
-          <div class="flex-1 h-[4px] rounded-full overflow-hidden min-w-[40px]" style="background:var(--border);">
-            <div id="usageFill" class="h-full rounded-full transition-all duration-500" style="width:0%;"></div>
-          </div>
-          <span id="usageLabel" class="text-[0.69rem] font-mono whitespace-nowrap" style="color:var(--text-muted);"></span>
-        </div>
+        <div class="w-px h-[18px] flex-shrink-0" style="background:var(--border);"></div>
         <!-- Export -->
-        <div class="ml-auto flex items-center gap-[5px] flex-shrink-0">
-          <span class="text-[0.68rem]" style="color:var(--text-muted);">Exportar:</span>
-          <button class="btn btn-outline btn-sm" id="dlJpg" onclick="downloadImage('jpg')">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z"/><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>
-            JPG
-          </button>
-          <button class="btn btn-outline btn-sm" id="dlPdf" onclick="downloadPDF()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm2.25 8.5a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 3a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" clip-rule="evenodd"/></svg>
-            PDF
-          </button>
+        <div class="flex flex-col gap-[3px] flex-shrink-0">
+          <span class="text-[0.6rem] font-mono uppercase text-center tracking-[0.05em]" style="color:var(--text-muted);">
+            Exportar
+          </span>
+          <div class="flex gap-[3px]">
+            <button class="btn btn-outline btn-sm" id="dlJpg" onclick="downloadImage('jpg')">
+              JPG
+            </button>
+            <button class="btn btn-outline btn-sm" id="dlPdf" onclick="downloadPDF()">
+              PDF
+            </button>
+          </div>
         </div>
       </div>
 
