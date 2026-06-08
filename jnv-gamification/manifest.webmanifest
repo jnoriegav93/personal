@@ -1,0 +1,19 @@
+{
+  "name": "JNV Gamification — Entrenamiento",
+  "short_name": "JNV Train",
+  "description": "Gamifica tu progreso de entrenamiento con niveles, bloques, tareas y rachas.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "./assets/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
