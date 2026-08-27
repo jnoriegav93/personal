@@ -1,3 +1,5 @@
+https://github.com/hasaneyldrm/exercises-dataset
+
 # JNV Gamification — Entrenamiento
 
 PWA para gamificar tu progreso de entrenamiento: mundos → niveles → bloques → tareas, con puntos, rachas y desbloqueo de niveles. Sin backend: todo vive en el navegador (IndexedDB) con import/export en JSON.
